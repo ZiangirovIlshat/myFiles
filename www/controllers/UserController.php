@@ -17,7 +17,7 @@ class UserController {
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode($users);
         } catch(PDOException $e) {
-            error_log("Ошибка при извлечении списка пользователей: " . $e->getMessage(), 0);
+            error_log("Error retrieving the list of users: " . $e->getMessage(), 0);
             return array();
         }
     }
@@ -33,16 +33,12 @@ class UserController {
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode($user);
         } catch(PDOException $e) {
-            error_log("Ошибка при обновлении пользовательских данных: " . $e->getMessage());
+            error_log("Error updating user data: " . $e->getMessage());
             return false;
         }
     }
     
     public function update($request) {
-        if(!isset($_SESSION['id'])) {
-            return "Пользователь не авторизован";
-        }
-
         $email = $request['email'];
         $password = $request['password'];
         $id = $_SESSION['id'];
@@ -62,7 +58,7 @@ class UserController {
                 return false;
             }
         } catch (PDOException $e) {
-            error_log("Ошибка при обновлении пользовательских данных: " . $e->getMessage());
+            error_log("Error updating user data: " . $e->getMessage());
             return false;
         }
     }
@@ -79,22 +75,26 @@ class UserController {
             
             $stmt->execute();
 
-            if ($stmt->rowCount() == 1) {
-                $id = $stmt->fetchAll(PDO::FETCH_ASSOC)[0]['id'];
-                $session_id = session_id();
-                $_SESSION['id'] = $id;
-                setcookie("session_id", $session_id, time() + 3600, "/");
-                return $session_id;
-            } else {
+            if($stmt->rowCount() != 1) {
                 return "Неверный логин или пароль";
             }
+
+            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $id = $data[0]['id'];
+            $role = $data[0]['role'];
+            $session_id = session_id();
+            $_SESSION['id']  = $id;
+            $_SESSION['role'] = $role;
+            setcookie("session_id", $session_id, time() + 3600, "/");
+            return $session_id;
+
         } catch (PDOException $e) {
             error_log("Error: " . $e->getMessage());
         }
     }
 
     public function resetPassword($email) {
-        TODO:
+        // TODO:
     }
 
     public function logout() {
