@@ -9,7 +9,7 @@ class AdminController {
         $this->conn = $db;
 
         if(!isset($_SESSION['id']) || $_SESSION['role'] != 1) {
-            http_response_code(404);
+            header('Location: /');
             return;
         }
     }
