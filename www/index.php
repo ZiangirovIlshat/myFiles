@@ -1,10 +1,15 @@
 <?php 
 
+session_start();
 
 // подключение к бд
 require_once (__DIR__ . DIRECTORY_SEPARATOR . "conf" . DIRECTORY_SEPARATOR . "database.php");
+// Файл создания исходных данных в бд 
+require_once (__DIR__ . DIRECTORY_SEPARATOR . "conf" . DIRECTORY_SEPARATOR . "core.php");
+
 $database = new Database();
 $db = $database->getConnection();
+
 
 
 // файл содержащий список обрабатываемых адресов
@@ -18,6 +23,7 @@ function router($db, $urlList) {
 
     $matchingRoute = null;
     $routeParams = [];
+
     foreach ($urlList as $url => $methods) {
         $pattern = preg_replace('/{(\w+)}/', '(\w+)', $url);
         if (preg_match('#^' . $pattern . '$#', $requestedUrl, $matches)) {
@@ -28,6 +34,11 @@ function router($db, $urlList) {
     }
 
     if ($matchingRoute) {
+        if(!array_key_exists($httpMethod, $urlList[$matchingRoute])) {
+            http_response_code(404);
+            return;
+        }
+
         $controllerMethod = $urlList[$matchingRoute][$httpMethod];
 
         list($controllerClass, $methodName) = explode("@", $controllerMethod);
