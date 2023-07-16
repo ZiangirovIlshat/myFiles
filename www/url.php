@@ -16,7 +16,7 @@ $urlList = [
     "/users/get/{id}" => [
         "GET" => "UserController@getUser"
     ],
-    "/user/update" => [
+    "/users/update" => [
         "PUT" => "UserController@update",
     ],
     "/users/login" => [
@@ -25,7 +25,7 @@ $urlList = [
     "/users/logout" => [
         "GET" => "UserController@logout",
     ],
-    "/users/reset_password" => [
+    "/users/reset_password/{email}" => [
         "GET" => "UserController@resetPassword",
     ],
 
