@@ -7,14 +7,14 @@ class AdminController {
     public function __construct($db)
     {
         $this->conn = $db;
-    }
 
-    public function list(){
         if(!isset($_SESSION['id']) || $_SESSION['role'] != 1) {
             http_response_code(404);
             return;
         }
+    }
 
+    public function list(){
         try {
             $stmt = $this->conn->prepare("SELECT id, email, password, role FROM User");
             $stmt->execute();
@@ -27,11 +27,6 @@ class AdminController {
         }
     }
     public function getUser($request){
-        if(!isset($_SESSION['id']) || $_SESSION['role'] != 1) {
-            http_response_code(404);
-            return;
-        }
-
         $id = $request[0];
         try {
             $stmt = $this->conn->prepare("SELECT id, email, role, password FROM user WHERE id = :id");
@@ -47,11 +42,6 @@ class AdminController {
         }
     }
     public function deleteUser($request){
-        if(!isset($_SESSION['id']) || $_SESSION['role'] != 1) {
-            http_response_code(404);
-            return;
-        }
-
         $id = $request[0];
         try {
             $stmt = $this->conn->prepare("DELETE FROM user WHERE id = :id");
@@ -64,11 +54,6 @@ class AdminController {
         }
     }
     public function update($request){
-        if(!isset($_SESSION['id']) || $_SESSION['role'] != 1) {
-            http_response_code(404);
-            return;
-        }
-
         $email = $request['email'];
         $password = $request['password'];
         $id = $request['id'];

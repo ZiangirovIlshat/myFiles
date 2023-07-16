@@ -30,7 +30,7 @@ $urlList = [
     ],
 
 
-    "admin/users/list" => [
+    "/admin/users/list" => [
         "GET" => "AdminController@list"
     ],
     "/admin/users/get/{id}" => [
@@ -41,5 +41,34 @@ $urlList = [
     ],
     "/admin/users/update/{id}" => [
         "GET" => "AdminController@update"
+    ],
+
+
+    "/files/list" => [
+        "GET" => "FilesController@listFile"
+    ],
+    "/files/get/{id}" => [
+        "GET" => "FilesController@getFile"
+    ],
+    "/files/add" => [
+        "POST" => "FilesController@addFileFile"
+    ],
+    "/files/rename" => [
+        "PUT" => "FilesController@renameFile"
+    ],
+    "/files/remove/{id}" => [
+        "DELETE" => "FilesController@removeFile"
+    ],
+    "/directories/add" => [
+        "POST" => "FilesController@addDirectories"
+    ],
+    "/directories/rename" => [
+        "PUT" => "FilesController@renameDirectories"
+    ],
+    "/directories/get/{id" => [
+        "GET" => "FilesController@getDirectories"
+    ],
+    "/directories/delete/{id}" => [
+        "DELETE" => "FilesController@deleteDirectories"
     ],
 ];
