@@ -30,16 +30,16 @@ $urlList = [
     ],
 
 
-    "admin/users/list" => [
+    "/admin/users/list" => [
         "GET" => "AdminController@list"
     ],
     "/admin/users/get/{id}" => [
-        "GET" => "AdminController@delete"
+        "GET" => "AdminController@getUser"
     ],
     "/admin/users/delete/{id}" => [
-        "GET" => "AdminController@deleteUser"
+        "DELETE" => "AdminController@deleteUser"
     ],
     "/admin/users/update/{id}" => [
-        "GET" => "AdminController@update"
+        "PUT" => "AdminController@update"
     ],
 ];

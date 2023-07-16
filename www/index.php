@@ -63,9 +63,13 @@ function router($db, $urlList) {
                 $controller->$methodName($request);
                 break;
             case "PUT":
-            case "DELETE":
                 $body = file_get_contents('php://input');
                 parse_str($body, $request);
+                $request += $routeParams;
+                $controller->$methodName($request);
+                break;
+            case "DELETE":
+                $request = [];
                 $request += $routeParams;
                 $controller->$methodName($request);
                 break;
