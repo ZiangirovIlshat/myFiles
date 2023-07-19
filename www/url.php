@@ -6,9 +6,6 @@ $urlList = [
         "GET" => "Controller@home",
     ],
 
-    '/users/list ' => [
-        "GET" => "UserController@list",
-    ],
 
     "/users/list" => [
         "GET" => "UserController@list",
@@ -16,7 +13,7 @@ $urlList = [
     "/users/get/{id}" => [
         "GET" => "UserController@getUser"
     ],
-    "/user/update" => [
+    "/users/update" => [
         "PUT" => "UserController@update",
     ],
     "/users/login" => [
@@ -25,22 +22,22 @@ $urlList = [
     "/users/logout" => [
         "GET" => "UserController@logout",
     ],
-    "/users/reset_password" => [
+    "/users/reset_password/{email}" => [
         "GET" => "UserController@resetPassword",
     ],
 
 
-    "admin/users/list" => [
+    "/admin/users/list" => [
         "GET" => "AdminController@list"
     ],
     "/admin/users/get/{id}" => [
-        "GET" => "AdminController@delete"
+        "GET" => "AdminController@getUser"
     ],
     "/admin/users/delete/{id}" => [
-        "GET" => "AdminController@deleteUser"
+        "DELETE" => "AdminController@deleteUser"
     ],
     "/admin/users/update/{id}" => [
-        "GET" => "AdminController@update"
+        "PUT" => "AdminController@update"
     ],
 
 

@@ -2,6 +2,6 @@
 
 class Controller {
     public function home() {
-        header('Location: /');
+        echo('home');
     }
 }
