@@ -31,7 +31,7 @@ $urlList = [
         "GET" => "AdminController@list"
     ],
     "/admin/users/get/{id}" => [
-        "GET" => "AdminController@delete"
+        "GET" => "AdminController@getUser"
     ],
     "/admin/users/delete/{id}" => [
         "DELETE" => "AdminController@deleteUser"
@@ -48,7 +48,7 @@ $urlList = [
         "GET" => "FilesController@getFile"
     ],
     "/files/add" => [
-        "POST" => "FilesController@addFileFile"
+        "POST" => "FilesController@addFile"
     ],
     "/files/rename" => [
         "PUT" => "FilesController@renameFile"

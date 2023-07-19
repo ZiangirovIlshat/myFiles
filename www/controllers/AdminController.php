@@ -16,7 +16,7 @@ class AdminController {
 
     public function list(){
         try {
-            $stmt = $this->conn->prepare("SELECT id, email, password, role FROM User");
+            $stmt = $this->conn->prepare("SELECT id, email, password, role FROM users");
             $stmt->execute();
             $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             header('Content-Type: application/json; charset=utf-8');
@@ -27,9 +27,9 @@ class AdminController {
         }
     }
     public function getUser($request){
-        $id = $request[0];
+        $id = $request['id'];
         try {
-            $stmt = $this->conn->prepare("SELECT id, email, role, password FROM user WHERE id = :id");
+            $stmt = $this->conn->prepare("SELECT id, email, role, password FROM users WHERE id = :id");
             $stmt->bindParam(":id", $id);
             $stmt->execute();
 
@@ -37,14 +37,15 @@ class AdminController {
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode($user);
         } catch(PDOException $e) {
+            print_r($e->getMessage());
             error_log("Error updating user data: " . $e->getMessage());
             return false;
         }
     }
     public function deleteUser($request){
-        $id = $request[0];
+        $id = $request['id'];
         try {
-            $stmt = $this->conn->prepare("DELETE FROM user WHERE id = :id");
+            $stmt = $this->conn->prepare("DELETE FROM users WHERE id = :id");
             $stmt->bindParam(":id", $id);
             $stmt->execute();
 
@@ -54,12 +55,12 @@ class AdminController {
         }
     }
     public function update($request){
-        $email = $request['email'];
+        $email    = $request['email'];
         $password = $request['password'];
-        $id = $request['id'];
+        $id       = $request['id'];
 
         try {
-            $stmt = $this->conn->prepare("UPDATE user SET email = :email, password = :password WHERE id = :id");
+            $stmt = $this->conn->prepare("UPDATE users SET email = :email, password = :password WHERE id = :id");
 
             $stmt->bindParam(":id", $id);
             $stmt->bindParam(":email", $email);
@@ -73,6 +74,7 @@ class AdminController {
                 return false;
             }
         } catch (PDOException $e) {
+            print_r($e->getMessage());
             error_log("Error updating user data: " . $e->getMessage());
             return false;
         }
