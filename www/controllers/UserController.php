@@ -23,7 +23,7 @@ class UserController {
     }
 
     public function getUser($request) {
-        $id = $request[0];
+        $id = $request['id'];
         try {
             $stmt = $this->conn->prepare("SELECT id, email, role FROM users WHERE id = :id");
             $stmt->bindParam(":id", $id);
@@ -102,8 +102,9 @@ class UserController {
         }
     }
 
-    public function resetPassword($email) {
-        // TODO:
+    public function resetPassword($request) {
+        $email = $request['email'];
+        print_r($email);
     }
 
     public function logout() {

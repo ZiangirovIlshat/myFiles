@@ -29,16 +29,23 @@ class Router {
         $requestedUrl  = $_SERVER['REQUEST_URI'];
         $httpMethod    = $_SERVER['REQUEST_METHOD'];
         $matchingRoute = null;
+        $extractedText = null;
         $routeParams   = [];
 
         foreach ($this->urlList as $url => $methods) {
-            $pattern = preg_replace('/{(\w+)}/', '(\w+)', $url);
-            if (preg_match('#^' . $pattern . '$#', $requestedUrl, $matchesOne)) {
+            if (preg_match('#^' . preg_replace('/{(\w+)}/', '(\w+)', $url) . '$#', $requestedUrl, $matches)) {
                 $matchingRoute = $url;
-                preg_match('/{([^}]+)}/', $url, $matchesTwo);
-                $extractedText = $matchesTwo[1] ?? null;
-                print_r($extractedText);
-                $routeParams = array_slice($matchesOne, 1);
+
+                preg_match('/{([^}]+)}/', $url, $extractedMatches);
+
+                if (count($extractedMatches) > 1) {
+                    $extractedText = $extractedMatches[1];
+                }
+
+                if(isset(array_slice($matches, 1)[0])) {
+                    $routeParams = [$extractedText => array_slice($matches, 1)[0]];
+                }
+
                 break;
             }
         }
