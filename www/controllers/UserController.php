@@ -11,7 +11,7 @@ class UserController {
 
     public function list() {
         try {
-            $stmt = $this->conn->prepare("SELECT id, email, role FROM User");
+            $stmt = $this->conn->prepare("SELECT id, email, role FROM users");
             $stmt->execute();
             $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             header('Content-Type: application/json; charset=utf-8');
@@ -25,7 +25,7 @@ class UserController {
     public function getUser($request) {
         $id = $request[0];
         try {
-            $stmt = $this->conn->prepare("SELECT id, email, role FROM user WHERE id = :id");
+            $stmt = $this->conn->prepare("SELECT id, email, role FROM users WHERE id = :id");
             $stmt->bindParam(":id", $id);
             $stmt->execute();
 
@@ -39,12 +39,18 @@ class UserController {
     }
     
     public function update($request) {
-        $email = $request['email'];
-        $password = $request['password'];
-        $id = $_SESSION['id'];
+        if(!isset($_SESSION['id'])) {
+            return;
+        }
+
+        print_r($request);
+
+        $email    = $request['email'];
+        $password = password_hash($request['password'], PASSWORD_DEFAULT);
+        $id       = $_SESSION['id'];
 
         try {
-            $stmt = $this->conn->prepare("UPDATE user SET email = :email, password = :password WHERE id = :id");
+            $stmt = $this->conn->prepare("UPDATE users SET email = :email, password = :password WHERE id = :id");
 
             $stmt->bindParam(":id", $id);
             $stmt->bindParam(":email", $email);
@@ -64,30 +70,33 @@ class UserController {
     }
     
     public function login($request) {
-        $email = $request['email'];
+        $email    = $request['email'];
         $password = $request['password'];
 
         try {
-            $stmt = $this->conn->prepare("SELECT * FROM user WHERE email = :email AND password = :password");
+            $stmt = $this->conn->prepare("SELECT * FROM users WHERE email = :email");
 
             $stmt->bindParam(':email', $email);
-            $stmt->bindParam(':password', $password);
             
             $stmt->execute();
 
-            if($stmt->rowCount() != 1) {
-                return "Неверный логин или пароль";
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($result) {
+                $hashedPassword = $result['password'];
+                $id             = $result['id'];
+                $role           = $result['role'];
+
+                if (password_verify($password, $hashedPassword)) {
+                    $session_id = session_id();
+                    $_SESSION['id']  = $id;
+                    $_SESSION['role'] = $role;
+                    setcookie("session_id", $session_id, time() + 3600, "/");
+                    return $session_id;
+                }
             }
 
-            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            $id = $data[0]['id'];
-            $role = $data[0]['role'];
-            $session_id = session_id();
-            $_SESSION['id']  = $id;
-            $_SESSION['role'] = $role;
-            setcookie("session_id", $session_id, time() + 3600, "/");
-            return $session_id;
-
+            return false;
         } catch (PDOException $e) {
             error_log("Error: " . $e->getMessage());
         }

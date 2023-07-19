@@ -6,9 +6,6 @@ $urlList = [
         "GET" => "Controller@home",
     ],
 
-    '/users/list ' => [
-        "GET" => "UserController@list",
-    ],
 
     "/users/list" => [
         "GET" => "UserController@list",

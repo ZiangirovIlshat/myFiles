@@ -7,28 +7,31 @@ $database = new Database();
 $db = $database->getConnection();
 
 try {
-    $standartEmail = 'admin@admin.cloud';
-    $standartPassword = password_hash('Admin', PASSWORD_DEFAULT);
-
-    $sql = "CREATE TABLE IF NOT EXISTS Users(
-        id int(11) NOT NULL AUTO_INCREMENT,
-        email varchar(32) NOT NULL,
+    $sql = "CREATE TABLE IF NOT EXISTS users(
+        id INT(11) NOT NULL AUTO_INCREMENT,
+        email VARCHAR(32) NOT NULL,
         password VARCHAR(255),
+        role TINYINT(1) NOT NULL DEFAULT 0,
         PRIMARY KEY (id)
-    )ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=65";
+    )ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
 
     $stmt = $db->prepare($sql);
     $stmt->execute();
 
-    $sql = "SELECT COUNT(*) FROM Users";
+    $sql = "SELECT COUNT(*) FROM users";
     $result = $db->query($sql);
     $rowCount = $result->fetchColumn();
 
     if ($rowCount === 0) {
-        $sql = "INSERT INTO Users (email, password) VALUES (:email, :password)";
+        $standartEmail = 'admin@admin.cloud';
+        $standartPassword = password_hash('Admin', PASSWORD_DEFAULT);
+        $role = 1;
+
+        $sql = "INSERT INTO users (email, password, role) VALUES (:email, :password, :role)";
         $stmt = $db->prepare($sql);
         $stmt->bindParam(':email', $standartEmail);
         $stmt->bindParam(':password', $standartPassword);
+        $stmt->bindParam(':role', $role);
         $stmt->execute();
     }
 }

@@ -26,11 +26,10 @@ class Router {
     }
 
     public function route() {
-        $requestedUrl = $_SERVER['REQUEST_URI'];
-        $httpMethod = $_SERVER['REQUEST_METHOD'];
-
+        $requestedUrl  = $_SERVER['REQUEST_URI'];
+        $httpMethod    = $_SERVER['REQUEST_METHOD'];
         $matchingRoute = null;
-        $routeParams = [];
+        $routeParams   = [];
 
         foreach ($this->urlList as $url => $methods) {
             $pattern = preg_replace('/{(\w+)}/', '(\w+)', $url);
@@ -71,9 +70,13 @@ class Router {
                     $controller->$methodName($request);
                     break;
                 case "PUT":
-                case "DELETE":
                     $body = file_get_contents('php://input');
                     parse_str($body, $request);
+                    $request += $routeParams;
+                    $controller->$methodName($request);
+                    break;
+                case "DELETE":
+                    $request = [];
                     $request += $routeParams;
                     $controller->$methodName($request);
                     break;
