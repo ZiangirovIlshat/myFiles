@@ -43,8 +43,6 @@ class UserController {
             return;
         }
 
-        print_r($request);
-
         $email    = $request['email'];
         $password = password_hash($request['password'], PASSWORD_DEFAULT);
         $id       = $_SESSION['id'];
@@ -88,9 +86,10 @@ class UserController {
                 $role           = $result['role'];
 
                 if (password_verify($password, $hashedPassword)) {
-                    $session_id = session_id();
-                    $_SESSION['id']  = $id;
+                    $session_id       = session_id();
+                    $_SESSION['id']   = $id;
                     $_SESSION['role'] = $role;
+
                     setcookie("session_id", $session_id, time() + 3600, "/");
                     return $session_id;
                 }

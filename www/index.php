@@ -33,7 +33,7 @@ class Router {
         $routeParams   = [];
 
         foreach ($this->urlList as $url => $methods) {
-            if (preg_match('#^' . preg_replace('/{(\w+)}/', '(\w+)', $url) . '$#', $requestedUrl, $matches)) {
+            if (preg_match('#^' . preg_replace("/\{(.+?)\}/U", '(\w+)', $url) . '$#', $requestedUrl, $matches)) {
                 $matchingRoute = $url;
 
                 preg_match('/{([^}]+)}/', $url, $extractedMatches);
