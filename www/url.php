@@ -42,19 +42,19 @@ $urlList = [
 
 
     "/files/list" => [
-        "GET" => "FilesController@list"
+        "GET" => "FilesController@listFile"
     ],
     "/files/get/{id}" => [
-        "GET" => "FilesController@get"
+        "GET" => "FilesController@getFile"
     ],
     "/files/add" => [
         "POST" => "FilesController@addFile"
     ],
     "/files/rename" => [
-        "PUT" => "FilesController@rename"
+        "PUT" => "FilesController@renameFile"
     ],
     "/files/remove/{id}" => [
-        "DELETE" => "FilesController@remove"
+        "DELETE" => "FilesController@removeFile"
     ],
     "/directories/add" => [
         "POST" => "FilesController@addDirectories"

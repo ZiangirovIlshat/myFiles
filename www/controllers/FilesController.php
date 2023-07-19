@@ -1,7 +1,7 @@
 <?php
 
 
-class AdminController {
+class FilesController {
     private $conn;
 
     public function __construct($db)
@@ -10,7 +10,7 @@ class AdminController {
     }
 
     public function listFile() {
-        
+
     }
     public function getFile() {
         
