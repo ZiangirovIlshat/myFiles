@@ -36,5 +36,14 @@ class FilesController {
     public function deleteDirectories() {
         
     }
+    public function shareList() {
+        
+    }
+    public function getShare() {
+        
+    }
+    public function deleteShare() {
+        
+    }
 }
 

@@ -68,4 +68,15 @@ $urlList = [
     "/directories/delete/{id}" => [
         "DELETE" => "FilesController@deleteDirectories"
     ],
+
+
+    "/files/share/list/{id}" => [
+        "GET" => "FilesController@shareList"
+    ],
+    "/files/share/get/{id}/{user_id}" => [
+        "PUT" => "FilesController@getShare"
+    ],
+    "/files/share/delete/{id}/{user_id}" => [
+        "DELETE" => "FilesController@deleteShare"
+    ],
 ];
