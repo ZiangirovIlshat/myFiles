@@ -56,7 +56,7 @@ class AdminController {
     }
     public function update($request){
         $email    = $request['email'];
-        $password = $request['password'];
+        $password = password_hash($request['password'], PASSWORD_DEFAULT);
         $id       = $request['id'];
 
         try {
