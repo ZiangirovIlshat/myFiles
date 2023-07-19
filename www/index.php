@@ -26,17 +26,26 @@ class Router {
     }
 
     public function route() {
-        $requestedUrl = $_SERVER['REQUEST_URI'];
-        $httpMethod = $_SERVER['REQUEST_METHOD'];
-
+        $requestedUrl  = $_SERVER['REQUEST_URI'];
+        $httpMethod    = $_SERVER['REQUEST_METHOD'];
         $matchingRoute = null;
-        $routeParams = [];
+        $extractedText = null;
+        $routeParams   = [];
 
         foreach ($this->urlList as $url => $methods) {
-            $pattern = preg_replace('/{(\w+)}/', '(\w+)', $url);
-            if (preg_match('#^' . $pattern . '$#', $requestedUrl, $matches)) {
+            if (preg_match('#^' . preg_replace("/\{(.+?)\}/U", '(\w+)', $url) . '$#', $requestedUrl, $matches)) {
                 $matchingRoute = $url;
-                $routeParams = array_slice($matches, 1);
+
+                preg_match('/{([^}]+)}/', $url, $extractedMatches);
+
+                if (count($extractedMatches) > 1) {
+                    $extractedText = $extractedMatches[1];
+                }
+
+                if(isset(array_slice($matches, 1)[0])) {
+                    $routeParams = [$extractedText => array_slice($matches, 1)[0]];
+                }
+
                 break;
             }
         }
@@ -71,9 +80,13 @@ class Router {
                     $controller->$methodName($request);
                     break;
                 case "PUT":
-                case "DELETE":
                     $body = file_get_contents('php://input');
                     parse_str($body, $request);
+                    $request += $routeParams;
+                    $controller->$methodName($request);
+                    break;
+                case "DELETE":
+                    $request = [];
                     $request += $routeParams;
                     $controller->$methodName($request);
                     break;
