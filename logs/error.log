@@ -1,15 +1,1 @@
 
-[Wed Jul 19 23:05:04.783893 2023] [php:warn] [pid 4180:tid 1856] [client 127.0.0.1:58467] PHP Warning:  Undefined array key 0 in C:\\myFile\\www\\controllers\\UserController.php on line 106
-[Wed Jul 19 23:07:41.792253 2023] [php:warn] [pid 4180:tid 1856] [client 127.0.0.1:58553] PHP Warning:  Undefined array key 0 in C:\\myFile\\www\\controllers\\UserController.php on line 26
-[Wed Jul 19 23:08:55.346954 2023] [php:warn] [pid 4180:tid 1856] [client 127.0.0.1:58575] PHP Warning:  Undefined array key 0 in C:\\myFile\\www\\index.php on line 42
-[Wed Jul 19 23:09:01.587220 2023] [php:warn] [pid 4180:tid 1856] [client 127.0.0.1:58580] PHP Warning:  Undefined array key 0 in C:\\myFile\\www\\index.php on line 42
-[Wed Jul 19 23:09:15.712650 2023] [php:warn] [pid 4180:tid 1856] [client 127.0.0.1:58584] PHP Warning:  Undefined array key 0 in C:\\myFile\\www\\index.php on line 43
-[Wed Jul 19 23:09:58.770663 2023] [php:warn] [pid 4180:tid 1856] [client 127.0.0.1:58599] PHP Warning:  Undefined array key 0 in C:\\myFile\\www\\index.php on line 43
-[Wed Jul 19 23:09:58.770663 2023] [php:warn] [pid 4180:tid 1856] [client 127.0.0.1:58599] PHP Warning:  Undefined array key 0 in C:\\myFile\\www\\index.php on line 44
-[Wed Jul 19 23:19:11.130302 2023] [php:notice] [pid 4180:tid 1864] [client 127.0.0.1:58805] Error: SQLSTATE[HY093]: Invalid parameter number: number of bound variables does not match number of tokens
-[Wed Jul 19 23:19:36.667116 2023] [php:notice] [pid 4180:tid 1872] [client 127.0.0.1:58840] Error: SQLSTATE[HY093]: Invalid parameter number: number of bound variables does not match number of tokens
-[Wed Jul 19 23:19:38.344466 2023] [php:notice] [pid 4180:tid 1872] [client 127.0.0.1:58840] Error: SQLSTATE[HY093]: Invalid parameter number: number of bound variables does not match number of tokens
-[Wed Jul 19 23:21:25.890725 2023] [php:notice] [pid 4180:tid 1864] [client 127.0.0.1:58930] Error: SQLSTATE[21S01]: Insert value list does not match column list: 1136 Column count doesn't match value count at row 1
-[Wed Jul 19 23:21:39.107051 2023] [php:notice] [pid 4180:tid 1856] [client 127.0.0.1:58958] Error: SQLSTATE[21S01]: Insert value list does not match column list: 1136 Column count doesn't match value count at row 1
-[Wed Jul 19 23:21:54.922498 2023] [php:notice] [pid 4180:tid 1856] [client 127.0.0.1:58994] Error: SQLSTATE[21S01]: Insert value list does not match column list: 1136 Column count doesn't match value count at row 1
-[Wed Jul 19 23:21:56.584944 2023] [php:notice] [pid 4180:tid 1856] [client 127.0.0.1:58994] Error: SQLSTATE[21S01]: Insert value list does not match column list: 1136 Column count doesn't match value count at row 1

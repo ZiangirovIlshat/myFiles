@@ -30,7 +30,7 @@ class Router {
         $httpMethod    = $_SERVER['REQUEST_METHOD'];
         $matchingRoute = null;
         $extractedText = null;
-        $routeParams   = [];
+        $routeParams     = [];
 
         foreach ($this->urlList as $url => $methods) {
             if (preg_match('#^' . preg_replace("/\{(.+?)\}/U", '(\w+)', $url) . '$#', $requestedUrl, $matches)) {
