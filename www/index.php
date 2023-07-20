@@ -50,7 +50,7 @@ class Router {
                         }
                     }
                 }
-        
+
                 break;
             }
         }
