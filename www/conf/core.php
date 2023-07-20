@@ -29,15 +29,15 @@ try {
     $rowCount = $result->fetchColumn();
 
     if ($rowCount === 0) {
-        $standartEmail    = $standardMail;
-        $standartPassword = password_hash($standardPassword, PASSWORD_DEFAULT);
-        $role             = 1;
-        $hash             = '';
+        $email    = $standardMail;
+        $password = password_hash($standardPassword, PASSWORD_DEFAULT);
+        $role     = 1;
+        $hash     = '';
 
         $sql  = "INSERT INTO users (email, password, role, hash) VALUES (:email, :password, :role, :hash)";
         $stmt = $db->prepare($sql);
-        $stmt->bindParam(':email', $standartEmail);
-        $stmt->bindParam(':password', $standartPassword);
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':password', $password);
         $stmt->bindParam(':role', $role);
         $stmt->bindParam(':hash', $hash);
         $stmt->execute();
