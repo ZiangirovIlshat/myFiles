@@ -17,7 +17,7 @@ class UserController {
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode($users);
         } catch(PDOException $e) {
-            error_log("Error retrieving the list of users: " . $e->getMessage(), 0);
+            error_log("Error: " . $e->getMessage(), 0);
             return array();
         }
     }
@@ -33,7 +33,7 @@ class UserController {
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode($user);
         } catch(PDOException $e) {
-            error_log("Error updating user data: " . $e->getMessage());
+            error_log("Error: " . $e->getMessage());
             return false;
         }
     }
@@ -62,7 +62,7 @@ class UserController {
                 return false;
             }
         } catch (PDOException $e) {
-            error_log("Error updating user data: " . $e->getMessage());
+            error_log("Error: " . $e->getMessage());
             return false;
         }
     }
@@ -103,7 +103,77 @@ class UserController {
 
     public function resetPassword($request) {
         $email = $request['email'];
-        print_r($email);
+
+        try {
+            $stmt = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE email = :email");
+            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            $count = $stmt->fetchColumn();
+            
+            if ($count > 0) {
+                $hash = urlencode($email) . rand(1000, 9999);
+
+                $updateStmt = $this->conn->prepare("UPDATE users SET hash = :hash WHERE email = :email");
+                $updateStmt->bindParam(':hash', $hash, PDO::PARAM_STR);
+                $updateStmt->bindParam(':email', $email, PDO::PARAM_STR);
+                $updateStmt->execute();
+                
+                $resetLink = "http://cloud-storage.local/users/reset_password_hash/" . $email . "/" . $hash;
+                $subject   = "Сброс пароля";
+                $message   = "Для сброса пароля перейдите по следующей ссылке: ". $resetLink;
+                $headers   = "From: your_email@example.com";
+
+                print_r($resetLink);
+                
+                mail($email, $subject, $message, $headers);
+            } else {
+                return false;
+            }
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+        }
+    }
+
+    public function resetPasswordHash($request) {
+        $email = $request['email'];
+        $hash  = $request['hash'];
+        function generateRandomPassword($length = 8)
+        {
+            $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            $password = '';
+        
+            for ($i = 0; $i < $length; $i++) {
+                $index = rand(0, strlen($characters) - 1);
+                $password .= $characters[$index];
+            }
+        
+            return $password;
+        }
+        try {
+            $stmt = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE email = :email AND hash = :hash");
+            $stmt->bindParam(':email', $email, PDO::PARAM_STR);
+            $stmt->bindParam(':hash', $hash, PDO::PARAM_STR);
+            $stmt->execute();
+
+            $count = $stmt->fetchColumn();
+
+            if ($count > 0) {
+                $newPassword = generateRandomPassword();
+
+                $updateStmt = $this->conn->prepare("UPDATE users SET password = :password, hash = '' WHERE email = :email AND hash = :hash");
+                $updateStmt->bindParam(':password', $newPassword, PDO::PARAM_STR);
+                $updateStmt->bindParam(':email', $email, PDO::PARAM_STR);
+                $updateStmt->bindParam(':hash', $hash, PDO::PARAM_STR);
+                $updateStmt->execute();
+
+                echo($newPassword);
+            } else {
+                return false;
+            }
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+        }
     }
 
     public function logout() {

@@ -3,6 +3,10 @@
 // подключение к бд
 require_once ("database.php");
 
+$standardMail     = 'admin@cloud.local';
+$standardPassword = 'admin';
+
+
 $database = new Database();
 $db = $database->getConnection();
 
@@ -25,8 +29,8 @@ try {
     $rowCount = $result->fetchColumn();
 
     if ($rowCount === 0) {
-        $standartEmail    = 'admin@admin.cloud';
-        $standartPassword = password_hash('Admin', PASSWORD_DEFAULT);
+        $standartEmail    = $standardMail;
+        $standartPassword = password_hash($standardPassword, PASSWORD_DEFAULT);
         $role             = 1;
         $hash             = '';
 

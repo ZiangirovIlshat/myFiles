@@ -11,10 +11,8 @@ require_once (__DIR__ . DIRECTORY_SEPARATOR . "conf" . DIRECTORY_SEPARATOR . "co
 $database = new Database();
 $db = $database->getConnection();
 
-
 // файл содержащий список обрабатываемых адресов
 require_once (__DIR__ . DIRECTORY_SEPARATOR . "url.php");
-
 
 class Router {
     private $db;
@@ -50,7 +48,7 @@ class Router {
                         }
                     }
                 }
-        
+
                 break;
             }
         }
@@ -77,26 +75,31 @@ class Router {
                     unset($_GET);
                     $request += $routeParams;
                     $controller->$methodName($request);
+
                     break;
                 case "POST":
                     $request = $_POST;
                     unset($_POST);
                     $request += $routeParams;
                     $controller->$methodName($request);
+
                     break;
                 case "PUT":
                     $body = file_get_contents('php://input');
                     parse_str($body, $request);
                     $request += $routeParams;
                     $controller->$methodName($request);
+
                     break;
                 case "DELETE":
                     $request = [];
                     $request += $routeParams;
                     $controller->$methodName($request);
+
                     break;
                 default:
                     http_response_code(405);
+
                     break;
             }
         } else {
