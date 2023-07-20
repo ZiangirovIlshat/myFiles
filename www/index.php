@@ -32,8 +32,31 @@ class Router {
         $extractedText = null;
         $routeParams   = [];
 
+        // foreach ($this->urlList as $url => $methods) {
+        //     $regex = '#^' . preg_replace("/\{(.+?)\}/", '(\w+)', $url) . '$#';
+        
+        //     if (preg_match($regex, $requestedUrl, $matches)) {
+        //         $matchingRoute = $url;
+        //         $routeParams = [];
+        
+        //         preg_match_all('/{([^}]+)}/', $url, $extractedMatches);
+        
+        //         if (count($extractedMatches[1]) > 0) {
+        //             $extractedText = $extractedMatches[1];
+                    
+        //             for ($i = 0; $i < count($extractedText); $i++) {
+        //                 if (isset($matches[$i + 1])) {
+        //                     $routeParams[$extractedText[$i]] = $matches[$i + 1];
+        //                 }
+        //             }
+        //         }
+        
+        //         break;
+        //     }
+        // }
+
         foreach ($this->urlList as $url => $methods) {
-            $regex = '#^' . preg_replace("/\{(.+?)\}/", '(\w+)', $url) . '$#';
+            $regex = '#^' . preg_replace("/\{(.+?)\}/", '([^/]+)', $url) . '$#';
         
             if (preg_match($regex, $requestedUrl, $matches)) {
                 $matchingRoute = $url;
@@ -43,7 +66,7 @@ class Router {
         
                 if (count($extractedMatches[1]) > 0) {
                     $extractedText = $extractedMatches[1];
-                    
+        
                     for ($i = 0; $i < count($extractedText); $i++) {
                         if (isset($matches[$i + 1])) {
                             $routeParams[$extractedText[$i]] = $matches[$i + 1];
