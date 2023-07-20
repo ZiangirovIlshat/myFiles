@@ -11,10 +11,8 @@ require_once (__DIR__ . DIRECTORY_SEPARATOR . "conf" . DIRECTORY_SEPARATOR . "co
 $database = new Database();
 $db = $database->getConnection();
 
-
 // файл содержащий список обрабатываемых адресов
 require_once (__DIR__ . DIRECTORY_SEPARATOR . "url.php");
-
 
 class Router {
     private $db;
@@ -33,7 +31,7 @@ class Router {
         $routeParams   = [];
 
         foreach ($this->urlList as $url => $methods) {
-            $regex = '#^' . preg_replace("/\{(.+?)\}/", '(\w+)', $url) . '$#';
+            $regex = '#^' . preg_replace("/\{(.+?)\}/", '([^/]+)', $url) . '$#';
         
             if (preg_match($regex, $requestedUrl, $matches)) {
                 $matchingRoute = $url;
@@ -43,7 +41,7 @@ class Router {
         
                 if (count($extractedMatches[1]) > 0) {
                     $extractedText = $extractedMatches[1];
-                    
+        
                     for ($i = 0; $i < count($extractedText); $i++) {
                         if (isset($matches[$i + 1])) {
                             $routeParams[$extractedText[$i]] = $matches[$i + 1];
@@ -77,26 +75,31 @@ class Router {
                     unset($_GET);
                     $request += $routeParams;
                     $controller->$methodName($request);
+
                     break;
                 case "POST":
                     $request = $_POST;
                     unset($_POST);
                     $request += $routeParams;
                     $controller->$methodName($request);
+
                     break;
                 case "PUT":
                     $body = file_get_contents('php://input');
                     parse_str($body, $request);
                     $request += $routeParams;
                     $controller->$methodName($request);
+
                     break;
                 case "DELETE":
                     $request = [];
                     $request += $routeParams;
                     $controller->$methodName($request);
+
                     break;
                 default:
                     http_response_code(405);
+
                     break;
             }
         } else {

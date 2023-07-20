@@ -3,6 +3,10 @@
 // подключение к бд
 require_once ("database.php");
 
+$standardMail     = 'admin@cloud.local';
+$standardPassword = 'admin';
+
+
 $database = new Database();
 $db = $database->getConnection();
 
@@ -25,17 +29,14 @@ try {
     $rowCount = $result->fetchColumn();
 
     if ($rowCount === 0) {
-        $standartEmail    = 'admin@admin.cloud';
-        $standartPassword = password_hash('Admin', PASSWORD_DEFAULT);
+        $standartEmail    = $standardMail;
+        $standartPassword = password_hash($standardPassword, PASSWORD_DEFAULT);
         $role             = 1;
         $hash             = '';
-
-        $sql  = "INSERT INTO users (email, password, role, hash) VALUES (:email, :password, :role, :hash)";
+        $sql = "INSERT INTO Users (email, password) VALUES (:email, :password)";
         $stmt = $db->prepare($sql);
         $stmt->bindParam(':email', $standartEmail);
         $stmt->bindParam(':password', $standartPassword);
-        $stmt->bindParam(':role', $role);
-        $stmt->bindParam(':hash', $hash);
         $stmt->execute();
     }
 }
