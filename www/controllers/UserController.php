@@ -18,7 +18,62 @@ class UserController {
             echo json_encode($users);
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage(), 0);
-            return array();
+            throw new Exception("Ошибка подключения к базе данных: " . $e->getMessage());
+        }
+    }
+
+    public function create($request) {
+        if(!isset($request['email']) || !isset($request['password'])) {
+            error_log("Error: " . "Not all data was specified when trying to register a user");
+            throw new Exception("Ошибка при получении данных");
+        }
+
+        $email    = $request['email'];
+        $password = $request['password'];
+        $role     = 0;
+
+        {
+            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                throw new Exception("Некорректный адрес электронной почты");
+            }
+        
+            try {
+                $checkStmt = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE email = :email");
+                $checkStmt->bindParam(':email', $email, PDO::PARAM_STR);
+                $checkStmt->execute();
+        
+                $count = $checkStmt->fetchColumn();
+        
+                if ($count > 0) {
+                    throw new Exception("Аккаунт с указанной почтой уже существует");
+                }
+            } catch(PDOException $e) {
+                error_log("Error: " . $e->getMessage(), 0);
+                throw new Exception("Ошибка подключения к базе данных");
+            }
+
+            $passwordLength = strlen($password);
+            if ($passwordLength < 8) {
+                throw new Exception("Пароль должен содержать минимум 8 символов");
+            }
+            if($passwordLength > 30) {
+                throw new Exception("Длинна пароля не должна превышать 30 символов");
+            }
+        
+            $password = password_hash($password, PASSWORD_DEFAULT);
+
+            try {
+                $addStmt = $this->conn->prepare("INSERT INTO users (email, password, role) VALUES (:email, :password, :role)");
+                $addStmt->bindParam(':email', $email, PDO::PARAM_STR);
+                $addStmt->bindParam(':password', $password, PDO::PARAM_STR);
+                $addStmt->bindParam(':role', $role, PDO::PARAM_STR);
+                $addStmt->execute();
+        
+                return true;
+            } catch(PDOException $e) {
+                error_log("Error: " . $e->getMessage(), 0);
+                throw new Exception("Ошибка подключения к базе данных");
+            }
         }
     }
 
@@ -30,11 +85,14 @@ class UserController {
             $stmt->execute();
 
             $user = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if($user === []) {
+                throw new Exception("Пользователь не найден");
+            }
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode($user);
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            return false;
+            throw new Exception("Ошибка подключения к базе данных");
         }
     }
     
@@ -43,31 +101,60 @@ class UserController {
             return;
         }
 
+        if(!isset($request['email']) || !isset($request['password'])) {
+            error_log("Error: " . "Not all data was specified when trying to update a user");
+            throw new Exception("Ошибка при получении данных");
+        }
+
         $email    = $request['email'];
-        $password = password_hash($request['password'], PASSWORD_DEFAULT);
+        $password = $request['password'];
         $id       = $_SESSION['id'];
 
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception("Некорректный адрес электронной почты");
+        }
+
         try {
-            $stmt = $this->conn->prepare("UPDATE users SET email = :email, password = :password WHERE id = :id");
-
-            $stmt->bindParam(":id", $id);
-            $stmt->bindParam(":email", $email);
-            $stmt->bindParam(":password", $password);
-
+            $stmt = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE email = :newEmail AND id != :userId");
+            $stmt->bindParam(':newEmail', $email, PDO::PARAM_STR);
+            $stmt->bindParam(':userId', $id, PDO::PARAM_INT);
             $stmt->execute();
-
-            if ($stmt->rowCount() > 0) {
-                return true;
-            } else {
-                return false;
+    
+            $count = $stmt->fetchColumn();
+    
+            if ($count > 0) {
+                throw new Exception("Пользователь с указанной почтой уже существует");
             }
-        } catch (PDOException $e) {
+
+            $passwordLength = strlen($password);
+            if ($passwordLength < 8) {
+                throw new Exception("Пароль должен содержать минимум 8 символов");
+            }
+            if($passwordLength > 30) {
+                throw new Exception("Длинна пароля не должна превышать 30 символов");
+            }
+        
+            $password = password_hash($password, PASSWORD_DEFAULT);
+
+            $updateStmt = $this->conn->prepare("UPDATE users SET email = :newEmail, password= :newPassword WHERE id = :userId");
+            $updateStmt->bindParam(':newEmail', $email, PDO::PARAM_STR);
+            $updateStmt->bindParam(':newPassword', $password, PDO::PARAM_STR);
+            $updateStmt->bindParam(':userId', $id, PDO::PARAM_INT);
+            $updateStmt->execute();
+
+            return true;
+        } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            return false;
+            throw new Exception("Ошибка подключения к базе данных");
         }
     }
     
     public function login($request) {
+        if(!isset($request['email']) || !isset($request['password'])) {
+            error_log("Error: " . "Not all data was specified when trying to update a user");
+            throw new Exception("Ошибка при получении данных");
+        }
+
         $email    = $request['email'];
         $password = $request['password'];
 
@@ -95,9 +182,10 @@ class UserController {
                 }
             }
 
-            return false;
+            throw new Exception("Не найден пользователь с данным паролем или почтой");
         } catch (PDOException $e) {
             error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка подключения к базе данных: " . $e->getMessage());
         }
     }
 
@@ -128,17 +216,18 @@ class UserController {
                 
                 mail($email, $subject, $message, $headers);
             } else {
-                return false;
+                throw new Exception("Не найден пользователь с указанным адресом электронной почты");
             }
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка подключения к базе данных: " . $e->getMessage());
         }
     }
 
     public function resetPasswordHash($request) {
         $email = $request['email'];
         $hash  = $request['hash'];
-        function generateRandomPassword($length = 8)
+        function generateRandomPassword($length = 10)
         {
             $characters = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
             $password = '';
@@ -173,6 +262,7 @@ class UserController {
             }
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка подключения к базе данных: " . $e->getMessage());
         }
     }
 
