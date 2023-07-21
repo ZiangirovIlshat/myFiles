@@ -5,10 +5,8 @@ require_once ("database.php");
 
 $standardMail     = 'admin@cloud.local';
 $standardPassword = 'admin';
-
-
-$database = new Database();
-$db = $database->getConnection();
+$database         = new Database();
+$db               = $database->getConnection();
 
 try {
     $sql = "CREATE TABLE IF NOT EXISTS users(
@@ -34,8 +32,7 @@ try {
         $role     = 1;
         $hash     = '';
 
-        $sql  = "INSERT INTO users (email, password, role, hash) VALUES (:email, :password, :role, :hash)";
-        $stmt = $db->prepare($sql);
+        $stmt = $db->prepare("INSERT INTO users (email, password, role, hash) VALUES (:email, :password, :role, :hash)");
         $stmt->bindParam(':email', $email);
         $stmt->bindParam(':password', $password);
         $stmt->bindParam(':role', $role);

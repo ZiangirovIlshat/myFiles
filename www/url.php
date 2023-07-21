@@ -13,6 +13,9 @@ $urlList = [
     "/users/get/{id}" => [
         "GET" => "UserController@getUser"
     ],
+    "/users/create" => [
+        "POST" => "UserController@create"
+    ],
     "/users/update" => [
         "PUT" => "UserController@update",
     ],
