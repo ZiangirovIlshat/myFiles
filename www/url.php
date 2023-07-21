@@ -13,7 +13,10 @@ $urlList = [
     "/users/get/{id}" => [
         "GET" => "UserController@getUser"
     ],
-    "/user/update" => [
+    "/users/create" => [
+        "POST" => "UserController@create"
+    ],
+    "/users/update" => [
         "PUT" => "UserController@update",
     ],
     "/users/login" => [
@@ -24,6 +27,9 @@ $urlList = [
     ],
     "/users/reset_password" => [
         "GET" => "UserController@resetPassword",
+    ],
+    "/users/reset_password_hash/{email}/{hash}" => [
+        "GET" => "UserController@resetPasswordHash",
     ],
 
 
