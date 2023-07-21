@@ -22,6 +22,32 @@ class UserController {
         }
     }
 
+    public function getUser($request) {
+        if(!isset($request['id'])) {
+            error_log("Error: " . "Not all data was specified when trying to register a user");
+            throw new Exception("Ошибка при получении данных");
+        }
+
+        $id = $request['id'];
+        try {
+            $stmt = $this->conn->prepare("SELECT id, email, role FROM users WHERE id = :id");
+            $stmt->bindParam(":id", $id);
+            $stmt->execute();
+
+            $user = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if($user === []) {
+                throw new Exception("Пользователь не найден");
+            }
+
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode($user);
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка подключения к базе данных");
+        }
+    }
+
     public function create($request) {
         if(!isset($request['email']) || !isset($request['password'])) {
             error_log("Error: " . "Not all data was specified when trying to register a user");
@@ -32,24 +58,19 @@ class UserController {
         $password = $request['password'];
         $role     = 0;
 
-        {
-            if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-                throw new Exception("Некорректный адрес электронной почты");
-            }
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            throw new Exception("Некорректный адрес электронной почты");
+        }
         
-            try {
-                $checkStmt = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE email = :email");
-                $checkStmt->bindParam(':email', $email, PDO::PARAM_STR);
-                $checkStmt->execute();
-        
-                $count = $checkStmt->fetchColumn();
-        
-                if ($count > 0) {
-                    throw new Exception("Аккаунт с указанной почтой уже существует");
-                }
-            } catch(PDOException $e) {
-                error_log("Error: " . $e->getMessage(), 0);
-                throw new Exception("Ошибка подключения к базе данных");
+        try {
+            $checEmail = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE email = :email");
+            $checEmail->bindParam(':email', $email, PDO::PARAM_STR);
+            $checEmail->execute();
+    
+            $count = $checEmail->fetchColumn();
+    
+            if ($count > 0) {
+                throw new Exception("Аккаунт с указанной почтой уже существует");
             }
 
             $passwordLength = strlen($password);
@@ -62,36 +83,14 @@ class UserController {
         
             $password = password_hash($password, PASSWORD_DEFAULT);
 
-            try {
-                $addStmt = $this->conn->prepare("INSERT INTO users (email, password, role) VALUES (:email, :password, :role)");
-                $addStmt->bindParam(':email', $email, PDO::PARAM_STR);
-                $addStmt->bindParam(':password', $password, PDO::PARAM_STR);
-                $addStmt->bindParam(':role', $role, PDO::PARAM_STR);
-                $addStmt->execute();
-        
-                return true;
-            } catch(PDOException $e) {
-                error_log("Error: " . $e->getMessage(), 0);
-                throw new Exception("Ошибка подключения к базе данных");
-            }
-        }
-    }
+            $addStmt = $this->conn->prepare("INSERT INTO users (email, password, role) VALUES (:email, :password, :role)");
+            $addStmt->bindParam(':email', $email, PDO::PARAM_STR);
+            $addStmt->bindParam(':password', $password, PDO::PARAM_STR);
+            $addStmt->bindParam(':role', $role, PDO::PARAM_STR);
+            $addStmt->execute();
 
-    public function getUser($request) {
-        $id = $request['id'];
-        try {
-            $stmt = $this->conn->prepare("SELECT id, email, role FROM users WHERE id = :id");
-            $stmt->bindParam(":id", $id);
-            $stmt->execute();
-
-            $user = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            if($user === []) {
-                throw new Exception("Пользователь не найден");
-            }
-            header('Content-Type: application/json; charset=utf-8');
-            echo json_encode($user);
         } catch(PDOException $e) {
-            error_log("Error: " . $e->getMessage());
+            error_log("Error: " . $e->getMessage(), 0);
             throw new Exception("Ошибка подключения к базе данных");
         }
     }
@@ -115,12 +114,12 @@ class UserController {
         }
 
         try {
-            $stmt = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE email = :newEmail AND id != :userId");
-            $stmt->bindParam(':newEmail', $email, PDO::PARAM_STR);
-            $stmt->bindParam(':userId', $id, PDO::PARAM_INT);
-            $stmt->execute();
+            $checEmail = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE email = :newEmail AND id != :userId");
+            $checEmail->bindParam(':newEmail', $email, PDO::PARAM_STR);
+            $checEmail->bindParam(':userId', $id, PDO::PARAM_INT);
+            $checEmail->execute();
     
-            $count = $stmt->fetchColumn();
+            $count = $checEmail->fetchColumn();
     
             if ($count > 0) {
                 throw new Exception("Пользователь с указанной почтой уже существует");
@@ -160,9 +159,7 @@ class UserController {
 
         try {
             $stmt = $this->conn->prepare("SELECT * FROM users WHERE email = :email");
-
             $stmt->bindParam(':email', $email);
-            
             $stmt->execute();
 
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -182,7 +179,7 @@ class UserController {
                 }
             }
 
-            throw new Exception("Не найден пользователь с данным паролем или почтой");
+            throw new Exception("Не найден пользователь с таким паролем или почтой");
         } catch (PDOException $e) {
             error_log("Error: " . $e->getMessage());
             throw new Exception("Ошибка подключения к базе данных: " . $e->getMessage());
@@ -211,8 +208,6 @@ class UserController {
                 $subject   = "Сброс пароля";
                 $message   = "Для сброса пароля перейдите по следующей ссылке: ". $resetLink;
                 $headers   = "From: your_email@example.com";
-
-                print_r($resetLink);
                 
                 mail($email, $subject, $message, $headers);
             } else {
