@@ -31,6 +31,9 @@ $urlList = [
     "/users/reset_password_hash/{email}/{hash}" => [
         "GET" => "UserController@resetPasswordHash",
     ],
+    "/users/search/{email}" => [
+        "GET" => "UserController@search",
+    ],
 
 
     "/admin/users/list" => [

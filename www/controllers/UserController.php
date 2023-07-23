@@ -48,6 +48,7 @@ class UserController {
         }
     }
 
+
     public function create($request) {
         if(!isset($request['email']) || !isset($request['password'])) {
             error_log("Error: " . "Not all data was specified when trying to register a user");
@@ -187,8 +188,12 @@ class UserController {
     }
 
     public function resetPassword($request) {
-        $email = $request['email'];
+        if(!isset($request['email'])) {
+            error_log("Error: " . "Not all data was specified when trying to update a user");
+            throw new Exception("Ошибка при получении данных");
+        }
 
+        $email = $request['email'];
         try {
             $stmt = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE email = :email");
             $stmt->bindParam(':email', $email, PDO::PARAM_STR);
@@ -258,6 +263,31 @@ class UserController {
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
             throw new Exception("Ошибка подключения к базе данных: " . $e->getMessage());
+        }
+    }
+
+    public function search($request) {
+        if(!isset($request['email'])) {
+            error_log("Error: " . "Not all data was specified when trying to register a user");
+            throw new Exception("Ошибка при получении данных");
+        }
+
+        $email = $request['email'];
+        try {
+            $stmt = $this->conn->prepare("SELECT id, email, role FROM users WHERE email = :email");
+            $stmt->bindParam(":email", $email);
+            $stmt->execute();
+
+            $user = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if($user === []) {
+                throw new Exception("Пользователь не найден");
+            }
+
+            return $user[0]['id'];
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка подключения к базе данных");
         }
     }
 
