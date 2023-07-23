@@ -3,8 +3,10 @@
 // подключение к бд
 require_once ("database.php");
 
-$database = new Database();
-$db = $database->getConnection();
+$standardMail     = 'admin@cloud.local';
+$standardPassword = 'admin';
+$database         = new Database();
+$db               = $database->getConnection();
 
 try {
     $sql = "CREATE TABLE IF NOT EXISTS users(
@@ -25,15 +27,14 @@ try {
     $rowCount = $result->fetchColumn();
 
     if ($rowCount === 0) {
-        $standartEmail    = 'admin@admin.cloud';
-        $standartPassword = password_hash('Admin', PASSWORD_DEFAULT);
-        $role             = 1;
-        $hash             = '';
+        $email    = $standardMail;
+        $password = password_hash($standardPassword, PASSWORD_DEFAULT);
+        $role     = 1;
+        $hash     = '';
 
-        $sql  = "INSERT INTO users (email, password, role, hash) VALUES (:email, :password, :role, :hash)";
-        $stmt = $db->prepare($sql);
-        $stmt->bindParam(':email', $standartEmail);
-        $stmt->bindParam(':password', $standartPassword);
+        $stmt = $db->prepare("INSERT INTO users (email, password, role, hash) VALUES (:email, :password, :role, :hash)");
+        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':password', $password);
         $stmt->bindParam(':role', $role);
         $stmt->bindParam(':hash', $hash);
         $stmt->execute();
