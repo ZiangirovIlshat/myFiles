@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 
 // список обрабатываемых запросов
 $urlList = [
@@ -77,7 +78,6 @@ $urlList = [
     "/directories/delete/{id}" => [
         "DELETE" => "FilesController@deleteDirectories"
     ],
-<<<<<<< HEAD
 
 
     "/files/share/list/{id}" => [
@@ -89,6 +89,4 @@ $urlList = [
     "/files/share/delete/{id}/{user_id}" => [
         "DELETE" => "FilesController@deleteShare"
     ],
-=======
->>>>>>> main
 ];

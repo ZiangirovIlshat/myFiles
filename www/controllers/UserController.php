@@ -90,6 +90,14 @@ class UserController {
             $addStmt->bindParam(':role', $role, PDO::PARAM_STR);
             $addStmt->execute();
 
+            $userId = $this->conn->lastInsertId();
+
+            $folderPath = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "usersFiles" . DIRECTORY_SEPARATOR . "filesFor_" . $userId;
+
+            if (!is_dir($folderPath)) {
+                mkdir($folderPath, 0777, true);
+            }
+
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage(), 0);
             throw new Exception("Ошибка подключения к базе данных");
