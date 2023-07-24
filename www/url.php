@@ -13,6 +13,9 @@ $urlList = [
     "/users/get/{id}" => [
         "GET" => "UserController@getUser"
     ],
+    "/users/create" => [
+        "POST" => "UserController@create"
+    ],
     "/users/update" => [
         "PUT" => "UserController@update",
     ],
@@ -22,8 +25,14 @@ $urlList = [
     "/users/logout" => [
         "GET" => "UserController@logout",
     ],
-    "/users/reset_password/{email}" => [
+    "/users/reset_password" => [
         "GET" => "UserController@resetPassword",
+    ],
+    "/users/reset_password_hash/{email}/{hash}" => [
+        "GET" => "UserController@resetPasswordHash",
+    ],
+    "/users/search/{email}" => [
+        "GET" => "UserController@search",
     ],
 
 
@@ -68,6 +77,7 @@ $urlList = [
     "/directories/delete/{id}" => [
         "DELETE" => "FilesController@deleteDirectories"
     ],
+<<<<<<< HEAD
 
 
     "/files/share/list/{id}" => [
@@ -79,4 +89,6 @@ $urlList = [
     "/files/share/delete/{id}/{user_id}" => [
         "DELETE" => "FilesController@deleteShare"
     ],
+=======
+>>>>>>> main
 ];

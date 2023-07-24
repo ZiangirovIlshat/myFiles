@@ -8,12 +8,12 @@ require_once (__DIR__ . DIRECTORY_SEPARATOR . "conf" . DIRECTORY_SEPARATOR . "da
 // Файл создания исходных данных в бд 
 require_once (__DIR__ . DIRECTORY_SEPARATOR . "conf" . DIRECTORY_SEPARATOR . "core.php");
 
-$database = new Database();
-$db = $database->getConnection();
-
-
 // файл содержащий список обрабатываемых адресов
 require_once (__DIR__ . DIRECTORY_SEPARATOR . "url.php");
+
+
+$database = new Database();
+$db = $database->getConnection();
 
 
 class Router {
@@ -32,25 +32,26 @@ class Router {
         $extractedText = null;
         $routeParams   = [];
 
+
         foreach ($this->urlList as $url => $methods) {
-            $regex = '#^' . preg_replace("/\{(.+?)\}/", '(\w+)', $url) . '$#';
+            $regex = '#^' . preg_replace("/\{(.+?)\}/", '([^/]+)', $url) . '$#';
         
             if (preg_match($regex, $requestedUrl, $matches)) {
                 $matchingRoute = $url;
-                $routeParams = [];
+                $routeParams   = [];
         
                 preg_match_all('/{([^}]+)}/', $url, $extractedMatches);
         
                 if (count($extractedMatches[1]) > 0) {
                     $extractedText = $extractedMatches[1];
-                    
+        
                     for ($i = 0; $i < count($extractedText); $i++) {
                         if (isset($matches[$i + 1])) {
                             $routeParams[$extractedText[$i]] = $matches[$i + 1];
                         }
                     }
                 }
-        
+
                 break;
             }
         }
@@ -71,33 +72,42 @@ class Router {
 
             $controller = new $controllerClass($this->db);
 
-            switch ($httpMethod) {
-                case "GET":
-                    $request = $_GET;
-                    unset($_GET);
-                    $request += $routeParams;
-                    $controller->$methodName($request);
-                    break;
-                case "POST":
-                    $request = $_POST;
-                    unset($_POST);
-                    $request += $routeParams;
-                    $controller->$methodName($request);
-                    break;
-                case "PUT":
-                    $body = file_get_contents('php://input');
-                    parse_str($body, $request);
-                    $request += $routeParams;
-                    $controller->$methodName($request);
-                    break;
-                case "DELETE":
-                    $request = [];
-                    $request += $routeParams;
-                    $controller->$methodName($request);
-                    break;
-                default:
-                    http_response_code(405);
-                    break;
+            try{
+                switch ($httpMethod) {
+                    case "GET":
+                        $request = $_GET;
+                        unset($_GET);
+                        $request += $routeParams;
+                        $controller->$methodName($request);
+
+                        break;
+                    case "POST":
+                        $request = $_POST;
+                        unset($_POST);
+                        $request += $routeParams;
+                        $controller->$methodName($request);
+
+                        break;
+                    case "PUT":
+                        $body = file_get_contents('php://input');
+                        parse_str($body, $request);
+                        $request += $routeParams;
+                        $controller->$methodName($request);
+
+                        break;
+                    case "DELETE":
+                        $request = [];
+                        $request += $routeParams;
+                        $controller->$methodName($request);
+
+                        break;
+                    default:
+                        http_response_code(405);
+
+                        break;
+                }
+            } catch(Exception $e){
+                echo $e->getMessage();
             }
         } else {
             http_response_code(404);
