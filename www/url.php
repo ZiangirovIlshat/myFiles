@@ -1,4 +1,5 @@
-<?php 
+<?php
+
 
 // список обрабатываемых запросов
 $urlList = [
@@ -28,8 +29,8 @@ $urlList = [
     "/users/reset_password" => [
         "GET" => "UserController@resetPassword",
     ],
-    "/users/reset_password_hash/{email}/{hash}" => [
-        "GET" => "UserController@resetPasswordHash",
+    "/users/reset_password_link/{email}/{hash}" => [
+        "GET" => "UserController@resetPasswordLink",
     ],
     "/users/search/{email}" => [
         "GET" => "UserController@search",
@@ -76,5 +77,16 @@ $urlList = [
     ],
     "/directories/delete/{id}" => [
         "DELETE" => "FilesController@deleteDirectories"
+    ],
+
+
+    "/files/share/list/{id}" => [
+        "GET" => "FilesController@shareList"
+    ],
+    "/files/share/get/{id}/{user_id}" => [
+        "PUT" => "FilesController@getShare"
+    ],
+    "/files/share/delete/{id}/{user_id}" => [
+        "DELETE" => "FilesController@deleteShare"
     ],
 ];

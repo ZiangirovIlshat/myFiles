@@ -79,6 +79,14 @@ class AdminController {
             $stmt->bindParam(":id", $id);
             $stmt->execute();
 
+            $userId = $this->conn->lastInsertId();
+
+            $folderPath = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "usersFiles" . DIRECTORY_SEPARATOR . "filesFor_" . $userId;
+
+            if (!is_dir($folderPath)) {
+                rmdir($folderPath);
+            }
+
         } catch(PDOException $e) {
             error_log("Error updating user data: " . $e->getMessage());
             throw new Exception("Ошибка подключения к базе данных");

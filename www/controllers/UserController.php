@@ -48,7 +48,6 @@ class UserController {
         }
     }
 
-
     public function create($request) {
         if(!isset($request['email']) || !isset($request['password'])) {
             error_log("Error: " . "Not all data was specified when trying to register a user");
@@ -89,6 +88,14 @@ class UserController {
             $addStmt->bindParam(':password', $password, PDO::PARAM_STR);
             $addStmt->bindParam(':role', $role, PDO::PARAM_STR);
             $addStmt->execute();
+
+            $userId = $this->conn->lastInsertId();
+
+            $folderPath = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "usersFiles" . DIRECTORY_SEPARATOR . "filesFor_" . $userId;
+
+            if (!is_dir($folderPath)) {
+                mkdir($folderPath, 0777, true);
+            }
 
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage(), 0);
@@ -224,7 +231,7 @@ class UserController {
         }
     }
 
-    public function resetPasswordHash($request) {
+    public function resetPasswordLink($request) {
         $email = $request['email'];
         $hash  = $request['hash'];
         function generateRandomPassword($length = 10)
@@ -256,6 +263,7 @@ class UserController {
                 $updateStmt->bindParam(':hash', $hash, PDO::PARAM_STR);
                 $updateStmt->execute();
 
+                // вывод нового пароля
                 echo($newPassword);
             } else {
                 return false;
