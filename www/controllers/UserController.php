@@ -24,7 +24,7 @@ class UserController {
 
     public function getUser($request) {
         if(!isset($request['id'])) {
-            error_log("Error: " . "Not all data was specified when trying to register a user");
+            error_log("Error: Not all information was provided");
             throw new Exception("Ошибка при получении данных");
         }
 
@@ -50,7 +50,7 @@ class UserController {
 
     public function create($request) {
         if(!isset($request['email']) || !isset($request['password'])) {
-            error_log("Error: " . "Not all data was specified when trying to register a user");
+            error_log("Error: Not all information was provided");
             throw new Exception("Ошибка при получении данных");
         }
 
@@ -182,7 +182,7 @@ class UserController {
                     $_SESSION['id']   = $id;
                     $_SESSION['role'] = $role;
 
-                    setcookie("session_id", $session_id, time() + 3600, "/");
+                    setcookie("session_id", $session_id, time() + 86400, "/");
                     return $session_id;
                 }
             }
@@ -276,7 +276,7 @@ class UserController {
 
     public function search($request) {
         if(!isset($request['email'])) {
-            error_log("Error: " . "Not all data was specified when trying to register a user");
+            error_log("Error: Not all information was provided");
             throw new Exception("Ошибка при получении данных");
         }
 

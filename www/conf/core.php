@@ -25,7 +25,7 @@ class Core {
             $createTable = $this->conn->prepare(
                 "CREATE TABLE IF NOT EXISTS users(
                     id INT(11) NOT NULL AUTO_INCREMENT,
-                    email VARCHAR(32) NOT NULL,
+                    email VARCHAR(32) NOT NULL UNIQUE,
                     password VARCHAR(255),
                     role TINYINT(1) NOT NULL DEFAULT 0,
                     hash VARCHAR(32),
@@ -45,7 +45,10 @@ class Core {
                     id INT(11) AUTO_INCREMENT PRIMARY KEY,
                     file_name VARCHAR(255),
                     file_path VARCHAR(255),
+                    file_size VARCHAR(255),
+                    file_update_date DATETIME,
                     owner_id INT(11),
+
                     FOREIGN KEY (owner_id) REFERENCES users(id)
                 )ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1"
             );

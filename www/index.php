@@ -5,7 +5,7 @@ session_start();
 // подключение к бд
 require_once (__DIR__ . DIRECTORY_SEPARATOR . "conf" . DIRECTORY_SEPARATOR . "database.php");
 
-// Файл создания исходных данных в бд 
+// Файл создания исходных данных в бд
 require_once (__DIR__ . DIRECTORY_SEPARATOR . "conf" . DIRECTORY_SEPARATOR . "core.php");
 
 // файл содержащий список обрабатываемых адресов
@@ -35,12 +35,12 @@ class Router {
     public function searchMatches() {
         foreach ($this->urlList as $url => $methods) {
             $regex = '#^' . preg_replace("/{(.+?)}/", '([^/]+)', $url) . '$#';
-        
+
             if (preg_match($regex, $this->requestedUrl, $matches)) {
                 $this->matchingRoute = $url;
                 preg_match_all('/{([^}]+)}/', $url, $extractedMatches);
                 $extractedText = null;
-        
+
                 if (count($extractedMatches[1]) > 0) {
                     $extractedText = $extractedMatches[1];
                     for ($i = 0; $i < count($extractedText); $i++) {
@@ -49,26 +49,27 @@ class Router {
                         }
                     }
                 }
+
                 try {
-                    if (isset($_FILES['file'])) {
-                        if ($_FILES['file']['error'] === UPLOAD_ERR_OK) {
-                            $maxFileSize = 2 * 1024 * 1024 * 1024;
-                            $fileSize = $_FILES['file']['size'];
-                            
-                            if ($fileSize <= $maxFileSize) {
-                                $this->routeParams['file'] = $_FILES['file'];
-                                unset($_FILES);
-                            } else {
-                                throw new Exception("Превышен максимально допустимый размер файла");
-                            }
+                    if(!$this->httpMethod === 'POST' || !isset($_FILES['file'])) {
+                        return;
+                    }
+
+                    if ($_FILES['file']['error'] === UPLOAD_ERR_OK) {                            
+                        if ($_FILES['file']['size'] <= (2 * 1024 * 1024 * 1024)) {
+                            $this->routeParams['file'] = $_FILES['file'];
+                            unset($_FILES);
                         } else {
-                            throw new Exception("Ошибка загрузки файла");
+                            throw new Exception("Превышен максимально допустимый размер файла");
                         }
+                    } else {
+                        throw new Exception("Ошибка загрузки файла");
                     }
                 } catch (Exception $e) {
                     echo $e->getMessage();
+                    return;
                 }
-                
+
                 break;
             }
         }
@@ -95,9 +96,16 @@ class Router {
             include (__DIR__ . DIRECTORY_SEPARATOR . "controllers" . DIRECTORY_SEPARATOR . $class . '.php');
         });
 
-        $controller = new $controllerClass($this->db);
+        try{
+            $controller = new $controllerClass($this->db);
+        } catch(Exception $e){
+            echo $e->getMessage();
+            return;
+        }
 
         try{
+            $request = [];
+
             switch ($this->httpMethod) {
                 case "GET":
                     $request = $_GET;

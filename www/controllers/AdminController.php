@@ -3,24 +3,17 @@
 
 class AdminController {
     private $conn;
-    private $accessRights;
 
     public function __construct($db)
     {
         $this->conn = $db;
 
-        if(isset($_SESSION['id']) && $_SESSION['role'] === 1) {
-            $this->accessRights = true;
-        } else {
-            $this->accessRights = false;
+        if(!isset($_SESSION['id']) || $_SESSION['role'] !== 1) {
+            throw new Exception ("Недостаточно прав!");
         }
     }
 
     public function list(){
-        if($this->accessRights === false) {
-            throw new Exception ("Недостаточно прав!");
-        }
-
         try {
             $stmt = $this->conn->prepare("SELECT id, email, password, role FROM users");
             $stmt->execute();
@@ -34,12 +27,8 @@ class AdminController {
     }
 
     public function getUser($request){
-        if($this->accessRights === false) {
-            throw new Exception ("Недостаточно прав!");
-        }
-
         if(!isset($request['id'])) {
-            error_log("Error: " . "Not all data was specified when trying to register a user");
+            error_log("Error: Not all information was provided");
             throw new Exception("Ошибка при получении данных");
         }
 
@@ -64,28 +53,27 @@ class AdminController {
     }
 
     public function deleteUser($request){
-        if($this->accessRights === false) {
-            throw new Exception ("Недостаточно прав!");
-        }
-
         if(!isset($request['id'])) {
-            error_log("Error: " . "Not all data was specified when trying to register a user");
+            error_log("Error: Not all information was provided");
             throw new Exception("Ошибка при получении данных");
         }
 
         $id = $request['id'];
         try {
-            $stmt = $this->conn->prepare("DELETE FROM users WHERE id = :id");
-            $stmt->bindParam(":id", $id);
-            $stmt->execute();
+            $deleteUsersFiles = $this->conn->prepare("DELETE FROM files WHERE owner_id = :id");
+            $deleteUsersFiles->bindParam(":id", $id);
+            $deleteUsersFiles->execute();
 
-            $userId = $this->conn->lastInsertId();
+            $deleteUser = $this->conn->prepare("DELETE FROM users WHERE id = :id");
+            $deleteUser->bindParam(":id", $id);
+            $deleteUser->execute();
 
-            $folderPath = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "usersFiles" . DIRECTORY_SEPARATOR . "filesFor_" . $userId;
+            // TODO:
+            // $folderPath = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "usersFiles" . DIRECTORY_SEPARATOR . "filesFor_" . $id;
 
-            if (!is_dir($folderPath)) {
-                rmdir($folderPath);
-            }
+            // if (is_dir($folderPath)) {
+            //     rmdir($folderPath);
+            // }
 
         } catch(PDOException $e) {
             error_log("Error updating user data: " . $e->getMessage());
@@ -94,10 +82,6 @@ class AdminController {
     }
 
     public function update($request){
-        if($this->accessRights === false) {
-            throw new Exception ("Недостаточно прав!");
-        }
-
         if(!isset($request['email']) || !isset($request['password']) || !isset($request['id'])) {
             error_log("Error: " . "Not all data was specified when trying to update a user");
             throw new Exception("Ошибка при получении данных");

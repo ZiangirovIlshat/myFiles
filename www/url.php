@@ -4,7 +4,7 @@
 // список обрабатываемых запросов
 $urlList = [
     "/" => [
-        "GET" => "Controller@home",
+        "GET" => "HomeController@home",
     ],
 
 
