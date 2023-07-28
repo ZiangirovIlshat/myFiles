@@ -8,7 +8,7 @@ class AdminController {
     {
         $this->conn = $db;
 
-        if(!isset($_SESSION['id']) || $_SESSION['role'] !== 1) {
+        if(!isset($_SESSION['user_id']) || $_SESSION['role'] !== 1) {
             throw new Exception ("Недостаточно прав!");
         }
     }
@@ -33,23 +33,24 @@ class AdminController {
         }
 
         $id = $request['id'];
+
         try {
             $stmt = $this->conn->prepare("SELECT id, email, role, password FROM users WHERE id = :id");
             $stmt->bindParam(":id", $id);
             $stmt->execute();
-
-            $user = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-            if($user === []) {
-                throw new Exception("Пользователь не найден");
-            }
-
-            header('Content-Type: application/json; charset=utf-8');
-            echo json_encode($user);
         } catch(PDOException $e) {
             error_log("Error updating user data: " . $e->getMessage());
             throw new Exception("Ошибка подключения к базе данных");
         }
+
+        $user = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if($user === []) {
+            throw new Exception("Пользователь не найден");
+        }
+
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode($user);
     }
 
     public function deleteUser($request){
@@ -59,6 +60,7 @@ class AdminController {
         }
 
         $id = $request['id'];
+
         try {
             $deleteUsersFiles = $this->conn->prepare("DELETE FROM files WHERE owner_id = :id");
             $deleteUsersFiles->bindParam(":id", $id);
@@ -67,14 +69,6 @@ class AdminController {
             $deleteUser = $this->conn->prepare("DELETE FROM users WHERE id = :id");
             $deleteUser->bindParam(":id", $id);
             $deleteUser->execute();
-
-            // TODO:
-            // $folderPath = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "usersFiles" . DIRECTORY_SEPARATOR . "filesFor_" . $id;
-
-            // if (is_dir($folderPath)) {
-            //     rmdir($folderPath);
-            // }
-
         } catch(PDOException $e) {
             error_log("Error updating user data: " . $e->getMessage());
             throw new Exception("Ошибка подключения к базе данных");
@@ -101,33 +95,43 @@ class AdminController {
             $checkID->execute();
 
             $count = $checkID->fetchColumn();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка подключения к базе данных");
+        }
 
-            if ($count === 0) {
-                throw new Exception("Пользователь с данным ID не существует");
-            }
+        if ($count === 0) {
+            throw new Exception("Пользователь с данным ID не существует");
+        }
 
+        try {
             $checkEmail = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE email = :newEmail AND id != :userId");
             $checkEmail->bindParam(':newEmail', $email, PDO::PARAM_STR);
             $checkEmail->bindParam(':userId', $id, PDO::PARAM_INT);
             $checkEmail->execute();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка подключения к базе данных");
+        }
+
+        $count = $checkEmail->fetchColumn();
     
-            $count = $checkEmail->fetchColumn();
-    
-            if ($count > 0) {
-                throw new Exception("Пользователь с указанной почтой уже существует");
-            }
+        if ($count > 0) {
+            throw new Exception("Пользователь с указанной почтой уже существует");
+        }
 
 
-            $passwordLength = strlen($password);
-            if ($passwordLength < 8) {
-                throw new Exception("Пароль должен содержать минимум 8 символов");
-            }
-            if($passwordLength > 30) {
-                throw new Exception("Длинна пароля не должна превышать 30 символов");
-            }
+        $passwordLength = strlen($password);
+        if ($passwordLength < 8) {
+            throw new Exception("Пароль должен содержать минимум 8 символов");
+        }
+        if($passwordLength > 30) {
+            throw new Exception("Длинна пароля не должна превышать 30 символов");
+        }
         
-            $password = password_hash($password, PASSWORD_DEFAULT);
+        $password = password_hash($password, PASSWORD_DEFAULT);
 
+        try {
             $updateStmt = $this->conn->prepare("UPDATE users SET email = :newEmail, password= :newPassword WHERE id = :userId");
             $updateStmt->bindParam(':newEmail', $email, PDO::PARAM_STR);
             $updateStmt->bindParam(':newPassword', $password, PDO::PARAM_STR);

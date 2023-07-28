@@ -38,19 +38,37 @@ class Core {
         }
     }
 
+    public function createDirectoriesTable() {
+        try {
+            $createTable = $this->conn->prepare(
+                "CREATE TABLE IF NOT EXISTS directories(
+                    id INT(11) AUTO_INCREMENT PRIMARY KEY,
+                    directories_path VARCHAR(255),
+                    owner_id INT(11),
+
+                    FOREIGN KEY (owner_id) REFERENCES users(id)
+                )ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1"
+            );
+            $createTable->execute();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+        }
+    }
+
     public function createFilesTable() {
         try {
             $createTable = $this->conn->prepare(
                 "CREATE TABLE IF NOT EXISTS files(
                     id INT(11) AUTO_INCREMENT PRIMARY KEY,
                     file_name VARCHAR(255),
-                    file_path VARCHAR(255),
+                    file_path INT(11),
                     file_size VARCHAR(255),
                     file_update_date DATETIME,
                     owner_id INT(11),
-
-                    FOREIGN KEY (owner_id) REFERENCES users(id)
-                )ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1"
+                
+                    FOREIGN KEY (owner_id) REFERENCES users(id),
+                    FOREIGN KEY (file_path) REFERENCES directories(id)
+                )ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;"
             );
             $createTable->execute();
         } catch(PDOException $e) {
@@ -102,7 +120,9 @@ class Core {
 }
 
 $core = new Core($standardAdminMail, $standardAdminPassword, $db);
+
 $core->createUsersTable();
+$core->createDirectoriesTable();
 $core->createFilesTable();
 $core->createAccessTable();
 $core->createAdminUser();
