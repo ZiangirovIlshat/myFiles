@@ -14,7 +14,7 @@ class FilesController {
             error_log("Error: user is not authorized");
             throw new Exception("Ошибка, пользователь не авторизован");
         }
-    
+
         $this->usersFolder = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "usersFiles" . DIRECTORY_SEPARATOR;
 
         if(!is_dir($this->usersFolder)) {
@@ -26,8 +26,46 @@ class FilesController {
     public function listFile() {
 
     }
-    public function getFile($request) {
 
+    public function getFile($request) {
+        if (!isset($request['id'])) {
+            error_log("Error: Not all information was provided");
+            throw new Exception("Ошибка при получении данных");
+        }
+
+        $id = $request['id'];
+
+        try{
+            $searchFile = $this->conn->prepare("SELECT * FROM files WHERE id = :id AND owner_id = :owner_id");
+            $searchFile->bindParam(":id", $id);
+            $searchFile->bindParam(":owner_id", $_SESSION['user_id']);
+
+            $searchFile->execute();
+            $file = $searchFile->fetchAll(PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка подключения к базе данных");
+        }
+
+        if($file === []) {
+            throw new Exception("Файл не найден");
+        }
+
+        $pattern = "/\{(.*?)\}/";
+        preg_match_all($pattern, $file[0]['file_name'], $matches);
+        $fileInfo = [];
+        $result   = $matches[1];
+
+        $fileInfo['id']          = $file[0]['id'];
+        $fileInfo['name']        = $result[0];
+        $fileInfo['extension']   = pathinfo($file[0]['file_name'])['extension'];
+        $fileInfo['owner']       = $result[1];
+        $fileInfo['file_path']   = $result[3];
+        $fileInfo['file_size']   = $file[0]['file_size'];
+        $fileInfo['update_date'] = $file[0]['file_update_date'];
+
+        header('Content-Type: application/json; charset=utf-8');
+        echo(json_encode($fileInfo, JSON_UNESCAPED_UNICODE));
     }
 
     public function addFile($request) {
@@ -110,7 +148,56 @@ class FilesController {
     }
 
     public function renameFile($request) {
-        // TODO:
+        if (!isset($request['id']) || !isset($request['newName'])) {
+            error_log("Error: Not all information was provided");
+            throw new Exception("Ошибка при получении данных");
+        }
+
+        $id      = $request['id'];
+        $newName = $request['newName'];
+        $oldName = '';
+        $newName = $request['newName'];
+
+        try{
+            $getFile = $this->conn->prepare("SELECT * FROM files WHERE id = :id AND owner_id = :ownewID");
+            $getFile->bindParam(":id", $id);
+            $getFile->bindParam(":ownewID", $_SESSION['user_id']);
+
+            $getFile->execute();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка подключения к базе данных");
+        }
+
+        $file    = $getFile->fetchAll(PDO::FETCH_ASSOC);
+
+        if($file === []) {
+            throw new Exception("Файл не найден");
+        }
+
+        if (!preg_match('/^[a-zA-Zа-яА-Я0-9-_\.]+$/', $newName)) {
+            throw new Exception("Недопустимое имя файла");
+        }
+
+        $oldName     = $file[0]['file_name'];
+        $newFullName = '';
+
+        $newFullName = preg_replace_callback('/\{([^{}]*)\}/', function($matches) use ($newName) {
+            return "{" . $newName . "}";
+        }, $oldName, 1);
+
+        try{
+            $renameFile = $this->conn->prepare("UPDATE файлы SET file_name = :newFullName WHERE id = :id");
+            $renameFile->bindParam(":id", $id);
+            $renameFile->bindParam(":newFullName", $newFullName);
+
+            $renameFile->execute();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка подключения к базе данных");
+        }
+
+        
     } 
 
     public function addDirectories() {
@@ -125,6 +212,8 @@ class FilesController {
     public function deleteDirectories() {
         
     }
+
+
     public function shareList() {
         
     }
@@ -135,6 +224,7 @@ class FilesController {
         
     }
 
+
     public function getUniqueName($pathParts, $filePath) {
         if($filePath === '') {
             $filePath = 'BASE_ROOT';
@@ -143,7 +233,7 @@ class FilesController {
             return false;
         }
 
-        $uniqueName = $pathParts['filename']. "+{" . $_SESSION["user_email"] . "}+{" . $_SESSION['user_id'] . "}+{" . $filePath ."}" . "." . $pathParts['extension'];
+        $uniqueName = "{" . $pathParts['filename'] . "}+{" . $_SESSION["user_email"] . "}+{" . $_SESSION['user_id'] . "}+{" . $filePath ."}" . "." . $pathParts['extension'];
         return $uniqueName;
     }
 }

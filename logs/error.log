@@ -1,0 +1,76 @@
+[Sat Jul 29 17:09:56.041338 2023] [php:notice] [pid 1656:tid 1940] [client 127.0.0.1:61967] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sat Jul 29 17:09:56.073342 2023] [php:notice] [pid 1656:tid 1940] [client 127.0.0.1:61967] Error: user is not authorized
+[Sat Jul 29 17:10:36.082431 2023] [php:notice] [pid 1656:tid 1940] [client 127.0.0.1:61979] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sat Jul 29 17:11:00.940633 2023] [php:notice] [pid 1656:tid 1940] [client 127.0.0.1:61986] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sat Jul 29 17:29:37.201146 2023] [php:notice] [pid 1656:tid 1936] [client 127.0.0.1:62101] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sat Jul 29 17:29:41.040493 2023] [php:notice] [pid 1656:tid 1936] [client 127.0.0.1:62101] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sat Jul 29 17:29:41.044493 2023] [php:error] [pid 1656:tid 1936] [client 127.0.0.1:62101] PHP Fatal error:  Constant expression contains invalid operations in C:\\myFile\\www\\controllers\\FilesController.php on line 7
+[Sat Jul 29 17:29:57.412515 2023] [php:notice] [pid 1656:tid 1936] [client 127.0.0.1:62112] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sat Jul 29 17:29:57.414515 2023] [php:error] [pid 1656:tid 1936] [client 127.0.0.1:62112] PHP Fatal error:  Constant expression contains invalid operations in C:\\myFile\\www\\controllers\\FilesController.php on line 7
+[Sat Jul 29 17:38:57.765823 2023] [php:notice] [pid 1656:tid 1936] [client 127.0.0.1:62161] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sat Jul 29 17:38:57.768822 2023] [php:error] [pid 1656:tid 1936] [client 127.0.0.1:62161] PHP Fatal error:  Constant expression contains invalid operations in C:\\myFile\\www\\controllers\\FilesController.php on line 7
+[Sat Jul 29 17:39:56.421684 2023] [php:notice] [pid 1656:tid 1936] [client 127.0.0.1:62179] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sat Jul 29 17:39:56.425686 2023] [php:notice] [pid 1656:tid 1936] [client 127.0.0.1:62179] Error: SQLSTATE[HY093]: Invalid parameter number: parameter was not defined
+[Sat Jul 29 17:40:18.400040 2023] [php:notice] [pid 1656:tid 1936] [client 127.0.0.1:62188] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sat Jul 29 23:25:59.173647 2023] [php:notice] [pid 1656:tid 1944] [client 127.0.0.1:49158] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:37:48.566470 2023] [php:notice] [pid 13248:tid 1864] [client 127.0.0.1:63533] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:37:48.570482 2023] [php:notice] [pid 13248:tid 1864] [client 127.0.0.1:63533] Error: user is not authorized
+[Sun Jul 30 13:39:54.365913 2023] [php:notice] [pid 13248:tid 1864] [client 127.0.0.1:63575] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:40:04.769646 2023] [php:notice] [pid 13248:tid 1864] [client 127.0.0.1:63582] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:40:19.982389 2023] [php:notice] [pid 13248:tid 1864] [client 127.0.0.1:63586] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:40:28.486208 2023] [php:notice] [pid 13248:tid 1864] [client 127.0.0.1:63590] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:41:24.793307 2023] [php:notice] [pid 13248:tid 1864] [client 127.0.0.1:63608] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:41:24.810308 2023] [php:notice] [pid 13248:tid 1864] [client 127.0.0.1:63608] Error: SQLSTATE[HY093]: Invalid parameter number: number of bound variables does not match number of tokens
+[Sun Jul 30 13:41:42.216178 2023] [php:notice] [pid 13248:tid 1864] [client 127.0.0.1:63614] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:42:01.698201 2023] [php:notice] [pid 13248:tid 1864] [client 127.0.0.1:63620] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:42:49.366664 2023] [php:notice] [pid 13248:tid 1864] [client 127.0.0.1:63628] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:42:53.651510 2023] [php:notice] [pid 13248:tid 1864] [client 127.0.0.1:63628] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:48:59.064399 2023] [php:notice] [pid 13248:tid 1864] [client 127.0.0.1:63683] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:49:03.892938 2023] [php:notice] [pid 13248:tid 1864] [client 127.0.0.1:63683] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:49:08.901746 2023] [php:notice] [pid 13248:tid 1864] [client 127.0.0.1:63683] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:50:28.819660 2023] [php:notice] [pid 13248:tid 1872] [client 127.0.0.1:63713] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:54:04.257746 2023] [php:notice] [pid 13248:tid 1872] [client 127.0.0.1:63737] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:54:04.274746 2023] [php:warn] [pid 13248:tid 1872] [client 127.0.0.1:63737] PHP Warning:  Undefined array key "file_name" in C:\\myFile\\www\\controllers\\FilesController.php on line 55
+[Sun Jul 30 13:54:04.274746 2023] [php:notice] [pid 13248:tid 1872] [client 127.0.0.1:63737] PHP Deprecated:  preg_match_all(): Passing null to parameter #2 ($subject) of type string is deprecated in C:\\myFile\\www\\controllers\\FilesController.php on line 55
+[Sun Jul 30 13:54:04.274746 2023] [php:warn] [pid 13248:tid 1872] [client 127.0.0.1:63737] PHP Warning:  Undefined array key 0 in C:\\myFile\\www\\controllers\\FilesController.php on line 59
+[Sun Jul 30 13:54:04.275799 2023] [php:warn] [pid 13248:tid 1872] [client 127.0.0.1:63737] PHP Warning:  Undefined array key 1 in C:\\myFile\\www\\controllers\\FilesController.php on line 60
+[Sun Jul 30 13:54:04.275799 2023] [php:warn] [pid 13248:tid 1872] [client 127.0.0.1:63737] PHP Warning:  Undefined array key 3 in C:\\myFile\\www\\controllers\\FilesController.php on line 61
+[Sun Jul 30 13:54:25.478317 2023] [php:notice] [pid 13248:tid 1872] [client 127.0.0.1:63743] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:54:25.504316 2023] [php:warn] [pid 13248:tid 1872] [client 127.0.0.1:63743] PHP Warning:  Undefined array key "file_name" in C:\\myFile\\www\\controllers\\FilesController.php on line 57
+[Sun Jul 30 13:54:25.505317 2023] [php:notice] [pid 13248:tid 1872] [client 127.0.0.1:63743] PHP Deprecated:  preg_match_all(): Passing null to parameter #2 ($subject) of type string is deprecated in C:\\myFile\\www\\controllers\\FilesController.php on line 57
+[Sun Jul 30 13:54:25.505317 2023] [php:warn] [pid 13248:tid 1872] [client 127.0.0.1:63743] PHP Warning:  Undefined array key 0 in C:\\myFile\\www\\controllers\\FilesController.php on line 61
+[Sun Jul 30 13:54:25.506316 2023] [php:warn] [pid 13248:tid 1872] [client 127.0.0.1:63743] PHP Warning:  Undefined array key 1 in C:\\myFile\\www\\controllers\\FilesController.php on line 62
+[Sun Jul 30 13:54:25.506316 2023] [php:warn] [pid 13248:tid 1872] [client 127.0.0.1:63743] PHP Warning:  Undefined array key 3 in C:\\myFile\\www\\controllers\\FilesController.php on line 63
+[Sun Jul 30 13:54:46.805447 2023] [php:notice] [pid 13248:tid 1872] [client 127.0.0.1:63749] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:55:04.755433 2023] [php:notice] [pid 13248:tid 1872] [client 127.0.0.1:63756] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:55:56.419730 2023] [php:notice] [pid 13248:tid 1872] [client 127.0.0.1:63766] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:56:14.096213 2023] [php:notice] [pid 13248:tid 1872] [client 127.0.0.1:63771] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:56:28.363802 2023] [php:notice] [pid 13248:tid 1872] [client 127.0.0.1:63779] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 13:59:53.483186 2023] [php:notice] [pid 13248:tid 1872] [client 127.0.0.1:63827] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Sun Jul 30 14:02:31.984696 2023] [php:notice] [pid 13248:tid 1872] [client 127.0.0.1:63875] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 00:15:44.889637 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:51956] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 00:15:49.920424 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:51967] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 00:15:55.678848 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:51971] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 00:15:55.681846 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:51971] Error: user is not authorized
+[Mon Jul 31 00:16:46.976892 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:52004] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 00:16:52.282355 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:52008] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 00:17:06.675073 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:52019] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 00:17:13.469355 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:52024] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 00:17:31.974158 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:52037] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 00:17:37.110941 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:52042] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 00:42:34.490948 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:52276] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 00:42:38.538353 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:52276] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 00:57:23.525690 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:52347] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 00:57:23.531706 2023] [php:warn] [pid 4076:tid 1884] [client 127.0.0.1:52347] PHP Warning:  Undefined array key "file_name" in C:\\myFile\\www\\controllers\\FilesController.php on line 173
+[Mon Jul 31 00:57:23.531706 2023] [php:warn] [pid 4076:tid 1884] [client 127.0.0.1:52347] PHP Warning:  Undefined array key "file_name" in C:\\myFile\\www\\controllers\\FilesController.php on line 175
+[Mon Jul 31 00:57:33.772245 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:52353] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 00:57:33.806246 2023] [php:warn] [pid 4076:tid 1884] [client 127.0.0.1:52353] PHP Warning:  Undefined array key "file_name" in C:\\myFile\\www\\controllers\\FilesController.php on line 175
+[Mon Jul 31 00:57:46.253871 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:52358] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 00:58:14.517348 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:52364] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 02:23:57.916283 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:53270] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 02:42:10.092314 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:53449] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 02:42:10.137315 2023] [php:error] [pid 4076:tid 1884] [client 127.0.0.1:53449] PHP Fatal error:  Uncaught ArgumentCountError: Too few arguments to function FilesController::{closure}(), 1 passed and exactly 2 expected in C:\\myFile\\www\\controllers\\FilesController.php:182\nStack trace:\n#0 [internal function]: FilesController->{closure}(Array)\n#1 C:\\myFile\\www\\controllers\\FilesController.php(182): preg_replace_callback('/\\\\{([^}]+)\\\\}/', Object(Closure), '{index}+{ziangi...')\n#2 C:\\myFile\\www\\index.php(128): FilesController->renameFile(Array)\n#3 C:\\myFile\\www\\index.php(149): Router->route()\n#4 {main}\n  thrown in C:\\myFile\\www\\controllers\\FilesController.php on line 182
+[Mon Jul 31 02:42:23.577832 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:53458] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 02:51:15.197543 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:53515] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 02:59:20.023644 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:53653] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
+[Mon Jul 31 02:59:42.340812 2023] [php:notice] [pid 4076:tid 1884] [client 127.0.0.1:53671] Error: SQLSTATE[42S01]: Base table or view already exists: 1050 Table 'access' already exists
