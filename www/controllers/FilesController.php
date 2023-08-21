@@ -93,8 +93,8 @@ class FilesController {
         }
 
         try{
-            $searchDirectories = $this->conn->prepare("SELECT * FROM directories WHERE directories_path = :directories_path AND owner_id = :owner_id");
-            $searchDirectories->bindParam(":directories_path", $filePath);
+            $searchDirectories = $this->conn->prepare("SELECT * FROM directories WHERE directory_path = :directory_path AND owner_id = :owner_id");
+            $searchDirectories->bindParam(":directory_path", $filePath);
             $searchDirectories->bindParam(":owner_id", $_SESSION['user_id']);
 
             $searchDirectories->execute();
@@ -122,7 +122,6 @@ class FilesController {
             $filesCount = $checkReplacement->fetchColumn();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            print_r('da');
             throw new Exception("Ошибка подключения к базе данных");
         }
 
@@ -140,7 +139,6 @@ class FilesController {
             $addFile->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            print_r('da');
             throw new Exception("Ошибка подключения к базе данных");
         }
 
@@ -200,11 +198,117 @@ class FilesController {
         
     } 
 
-    public function addDirectories() {
-        
+    public function addDirectory($request) {
+        if (!isset($request['parentDirectoryID']) || !isset($request['directoryName'])) {
+            error_log("Error: Not all information was provided");
+            throw new Exception("Ошибка при получении данных");
+        }
+
+        $parentDirectoryID = $request['parentDirectoryID'];
+        $directoryName     = $request['directoryName'];
+        $path              = '';
+
+        try{
+            $checkDirectory = $this->conn->prepare("SELECT * FROM directories WHERE id = :parent_directory_id");
+            $checkDirectory->bindParam(":parent_directory_id", $parentDirectoryID);
+            $checkDirectory->execute();
+
+            $checkDirectoryResult = $checkDirectory->fetchAll(PDO::FETCH_ASSOC);
+            $directoriesCount     = $checkDirectory->fetchColumn();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка подключения к базе данных");
+        }
+
+        if($directoriesCount === 0) {
+            error_log("Error: parent directory not found");
+            throw new Exception("Ошибка. Не найденна родительская дирекетория директория");
+        }
+
+        $this->checkingFolderName($directoryName);
+
+        $parentDirectoryName = $checkDirectoryResult[0]['directory_path'];
+        $directoryPath       = $parentDirectoryName . '/' . $directoryName;
+
+        try{
+            $checkName = $this->conn->prepare("SELECT * FROM directories WHERE directory_path = :directory_path");
+            $checkName->bindParam(":directory_path", $directoryPath);
+            $checkName->execute();
+
+            $nameCount = $checkName->fetchColumn();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка подключения к базе данных");
+        }
+
+        if($nameCount > 0) {
+            throw new Exception("В данной директории уже есть папка с таким именем");
+        }
+
+        print_r($_SESSION['user_id']);
+
+        try{
+            $addFile = $this->conn->prepare("INSERT INTO directories (directory_path, owner_id) VALUES (:directory_path, :owner_id)");
+            $addFile->bindParam(":directory_path", $directoryPath);
+            $addFile->bindParam(":owner_id", $_SESSION['user_id']);
+
+            $addFile->execute();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка подключения к базе данных");
+        }
+
     }
-    public function renameDirectories() {
-        
+    public function renameDirectories($request) {
+        if (!isset($request['id']) || !isset($request['newName'])) {
+            error_log("Error: Not all information was provided");
+            throw new Exception("Ошибка при получении данных");
+        }
+
+        $id      = $request['id'];
+        $newName = $request['newName'];
+
+        $this->checkingFolderName($newName);
+
+        try{
+            $checkDirectory = $this->conn->prepare("SELECT * FROM directories WHERE id = :id");
+            $checkDirectory->bindParam(":id", $id);
+            $checkDirectory->execute();
+
+            $checkDirectoryResult = $checkDirectory->fetchAll(PDO::FETCH_ASSOC);
+            $directoriesCount     = $checkDirectory->fetchColumn();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка подключения к базе данных");
+        }
+
+        if($directoriesCount === 0) {
+            throw new Exception("Не найденна папка");
+        }
+
+        if($checkDirectoryResult[0]['directory_path'] === 'BASE_ROOT') {
+            throw new Exception("Нельзя переименовывать данную папку");
+        }
+
+        $string = $checkDirectoryResult[0]['directory_path'];
+        $delimiter = '/';
+        $array = explode($delimiter, $string);
+        $last = count($array)-1;
+        $array[$last] = $newName;
+        $newDirectoryPath = implode($delimiter, $array);
+
+        print_r($newDirectoryPath);
+
+        try{
+            $renameDirectory = $this->conn->prepare("UPDATE directories SET directory_path = :new_directory_path WHERE id = :id");
+            $renameDirectory->bindParam(":new_directory_path", $newDirectoryPath);
+            $renameDirectory->bindParam(":id", $id);
+            $renameDirectory->execute();
+
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка подключения к базе данных");
+        }
     }
     public function getDirectories() {
         
@@ -225,16 +329,35 @@ class FilesController {
     }
 
 
+
     public function getUniqueName($pathParts, $filePath) {
         if($filePath === '') {
             $filePath = 'BASE_ROOT';
         }
-        if (!preg_match('/^[a-zA-Zа-яА-Я0-9-_\.]+$/', $pathParts['filename'])) {
+        if (!preg_match('/^[a-zA-Zа-яА-Я0-9_-]+$/', $pathParts['filename'])) {
             return false;
         }
 
         $uniqueName = "{" . $pathParts['filename'] . "}+{" . $_SESSION["user_email"] . "}+{" . $_SESSION['user_id'] . "}+{" . $filePath ."}" . "." . $pathParts['extension'];
         return $uniqueName;
+    }
+
+    public function checkingFolderName($name) {
+        if(strlen($name) < 8) {
+            throw new Exception("Название папки должно содержать хотя бы 8 символов");
+        }
+
+        if(strlen($name) > 32) {
+            throw new Exception("Название папки должно содержать не более 32 символов");
+        }
+
+        if($name === 'BASE_ROOT') {
+            throw new Exception("Недопустимое имя директории");
+        }
+
+        if (!preg_match('/^[a-zA-Zа-яА-Я0-9_-]+$/', $name)) {
+            throw new Exception("Недопустимые символы в названии");
+        }
     }
 }
 

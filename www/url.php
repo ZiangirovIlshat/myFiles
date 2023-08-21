@@ -67,7 +67,7 @@ $urlList = [
         "DELETE" => "FilesController@removeFile"
     ],
     "/directories/add" => [
-        "POST" => "FilesController@addDirectories"
+        "POST" => "FilesController@addDirectory"
     ],
     "/directories/rename" => [
         "PUT" => "FilesController@renameDirectories"

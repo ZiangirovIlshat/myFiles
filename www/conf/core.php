@@ -43,7 +43,7 @@ class Core {
             $createTable = $this->conn->prepare(
                 "CREATE TABLE IF NOT EXISTS directories(
                     id INT(11) AUTO_INCREMENT PRIMARY KEY,
-                    directories_path VARCHAR(255),
+                    directory_path VARCHAR(255),
                     owner_id INT(11),
 
                     FOREIGN KEY (owner_id) REFERENCES users(id)

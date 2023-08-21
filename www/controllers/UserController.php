@@ -103,14 +103,13 @@ class UserController {
         $root   = "BASE_ROOT";
 
         try {
-            $addUserRootDirectory = $this->conn->prepare("INSERT INTO directories (directories_path, owner_id) VALUES (:directories_path, :owner_id)");
-            $addUserRootDirectory->bindParam(':directories_path', $root, PDO::PARAM_STR);
+            $addUserRootDirectory = $this->conn->prepare("INSERT INTO directories (directory_path, owner_id) VALUES (:directory_path, :owner_id)");
+            $addUserRootDirectory->bindParam(':directory_path', $root, PDO::PARAM_STR);
             $addUserRootDirectory->bindParam(':owner_id', $userId, PDO::PARAM_STR);
 
             $addUserRootDirectory->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage(), 0);
-            print_r('da');
             throw new Exception("Ошибка подключения к базе данных");
         }
     }
