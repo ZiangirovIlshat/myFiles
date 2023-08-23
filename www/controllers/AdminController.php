@@ -8,21 +8,22 @@ class AdminController {
     {
         $this->conn = $db;
 
-        if(!isset($_SESSION['user_id']) || $_SESSION['role'] !== 1) {
+        if(!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 1) {
+            http_response_code(401);
             throw new Exception ("Недостаточно прав!");
         }
     }
 
     public function list(){
         try {
-            $stmt = $this->conn->prepare("SELECT id, email, password, role FROM users");
+            $stmt = $this->conn->prepare("SELECT id, email, role FROM users");
             $stmt->execute();
             $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode($users);
         } catch(PDOException $e) {
             error_log("Error retrieving the list of users:" . $e->getMessage(), 0);
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при получении иформации о пользователях");
         }
     }
 
@@ -40,7 +41,7 @@ class AdminController {
             $stmt->execute();
         } catch(PDOException $e) {
             error_log("Error updating user data: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при получении иформации о пользователе");
         }
 
         $user = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -71,7 +72,7 @@ class AdminController {
             $deleteUser->execute();
         } catch(PDOException $e) {
             error_log("Error updating user data: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при удалении пользователя");
         }
     }
 
@@ -97,7 +98,7 @@ class AdminController {
             $count = $checkID->fetchColumn();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при поиске пользователя");
         }
 
         if ($count === 0) {
@@ -111,7 +112,7 @@ class AdminController {
             $checkEmail->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при проверке уникальности почты");
         }
 
         $count = $checkEmail->fetchColumn();
@@ -141,7 +142,7 @@ class AdminController {
             return true;
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при редактировании пользователя");
         }
     }
 }

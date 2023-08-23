@@ -6,7 +6,7 @@ require_once (__DIR__ . DIRECTORY_SEPARATOR . "database.php");
 $database = new Database();
 $db = $database->getConnection();
 
-$standardAdminMail = 'admin@cloud.local';
+$standardAdminMail     = 'admin@cloud.local';
 $standardAdminPassword = 'admin';
 
 class Core {
@@ -15,9 +15,9 @@ class Core {
     private $conn;
 
     public function __construct($standardAdminMail, $standardAdminPassword, $db) {
-        $this->standardAdminMail = $standardAdminMail;
-        $this->standardAdminPassword= $standardAdminPassword;
-        $this->conn = $db;
+        $this->standardAdminMail     = $standardAdminMail;
+        $this->standardAdminPassword = $standardAdminPassword;
+        $this->conn                  = $db;
     }
 
     public function createUsersTable() {
@@ -43,7 +43,7 @@ class Core {
             $createTable = $this->conn->prepare(
                 "CREATE TABLE IF NOT EXISTS directories(
                     id INT(11) AUTO_INCREMENT PRIMARY KEY,
-                    directory_path VARCHAR(255),
+                    directory_path INT(11),
                     owner_id INT(11),
 
                     FOREIGN KEY (owner_id) REFERENCES users(id)

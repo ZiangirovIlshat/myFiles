@@ -72,7 +72,7 @@ $urlList = [
     "/directories/rename" => [
         "PUT" => "FilesController@renameDirectories"
     ],
-    "/directories/get/{id" => [
+    "/directories/get/{id}" => [
         "GET" => "FilesController@getDirectories"
     ],
     "/directories/delete/{id}" => [

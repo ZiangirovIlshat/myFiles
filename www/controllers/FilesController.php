@@ -11,6 +11,7 @@ class FilesController {
         $this->conn = $db;
 
         if(!isset($_SESSION['user_id'])){
+            http_response_code(401);
             error_log("Error: user is not authorized");
             throw new Exception("Ошибка, пользователь не авторизован");
         }
@@ -24,7 +25,38 @@ class FilesController {
     }
 
     public function listFile() {
+        try{
+            $searchFile = $this->conn->prepare("SELECT files.id, files.owner_id, files.file_name, files.file_path, files.file_size, files.file_update_date
+            FROM files
+            LEFT JOIN access ON access.file_id = files.id
+            WHERE files.owner_id = :user_id OR access.user_id = :user_id");
+            $searchFile->bindParam(":user_id", $_SESSION['user_id']);
+        
+            $searchFile->execute();
+            $files = $searchFile->fetchAll(PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка при получении информации о файлах");
+        }
 
+
+        foreach($files as $file) {
+            $pattern = "/\{(.*?)\}/";
+            preg_match_all($pattern, $file['file_name'], $matches);
+            $fileInfo = [];
+            $result   = $matches[1];
+
+            $fileInfo['id']          = $file['id'];
+            $fileInfo['name']        = $result[0];
+            $fileInfo['extension']   = pathinfo($file['file_name'])['extension'];
+            $fileInfo['owner']       = $result[1];
+            $fileInfo['file_path']   = $result[3];
+            $fileInfo['file_size']   = $file['file_size'];
+            $fileInfo['update_date'] = $file['file_update_date'];
+
+            header('Content-Type: application/json; charset=utf-8');
+            echo(json_encode($fileInfo, JSON_UNESCAPED_UNICODE));
+        }
     }
 
     public function getFile($request) {
@@ -35,16 +67,20 @@ class FilesController {
 
         $id = $request['id'];
 
-        try{
-            $searchFile = $this->conn->prepare("SELECT * FROM files WHERE id = :id AND owner_id = :owner_id");
-            $searchFile->bindParam(":id", $id);
-            $searchFile->bindParam(":owner_id", $_SESSION['user_id']);
-
+        try {
+            $searchFile = $this->conn->prepare("SELECT files.id, files.owner_id, files.file_name, files.file_path, files.file_size, files.file_update_date
+            FROM files
+            LEFT JOIN access ON access.file_id = files.id
+            WHERE (files.owner_id = :user_id OR access.user_id = :user_id) AND files.id = :file_id");
+        
+            $searchFile->bindParam(":user_id", $_SESSION['user_id']);
+            $searchFile->bindParam(":file_id", $id);
+        
             $searchFile->execute();
             $file = $searchFile->fetchAll(PDO::FETCH_ASSOC);
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при получении информации о файле");
         }
 
         if($file === []) {
@@ -69,7 +105,7 @@ class FilesController {
     }
 
     public function addFile($request) {
-        if (!isset($request['filePath']) || !isset($request['file'])) {
+        if (!isset($request['directoryID']) || !isset($request['file'])) {
             error_log("Error: Not all information was provided");
             throw new Exception("Ошибка при получении данных");
         }
@@ -80,37 +116,30 @@ class FilesController {
         $fileTmpPath    = $file['tmp_name'];
         $fileSize       = round($file['size'] / (1024 * 1024), 3) . " Мбайт";
         $fileUpdateDate = date("Y-m-d H:i:s");
-        $filePath       = $request['filePath'];
+        $directoryID    = $request['directoryID'];
 
-        if(!$this->getUniqueName($pathParts, $filePath)) {
+        if(!$this->getUniqueName($pathParts, $directoryID)) {
             throw new Exception("Недопустимое имя файла");
         }
 
-        $fileName = $this->getUniqueName($pathParts, $filePath);
-
-        if($filePath === '') {
-            $filePath = "BASE_ROOT";
-        }
+        $fileName = $this->getUniqueName($pathParts, $directoryID);
 
         try{
-            $searchDirectories = $this->conn->prepare("SELECT * FROM directories WHERE directory_path = :directory_path AND owner_id = :owner_id");
-            $searchDirectories->bindParam(":directory_path", $filePath);
+            $searchDirectories = $this->conn->prepare("SELECT * FROM directories WHERE id = :id AND owner_id = :owner_id");
+            $searchDirectories->bindParam(":id", $directoryID);
             $searchDirectories->bindParam(":owner_id", $_SESSION['user_id']);
 
             $searchDirectories->execute();
             $directoryInf = $searchDirectories->fetchAll(PDO::FETCH_ASSOC);
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при поиске директории");
         }
-
-        $directoryID = null;
 
         if (!$directoryInf) {
             throw new Exception("Не найдена дирректория");
         }
 
-        $directoryID = $directoryInf[0]['id'];
 
         try{
             $checkReplacement = $this->conn->prepare("SELECT * FROM files WHERE file_name = :file_name AND file_path = :file_path AND owner_id = :owner_id");
@@ -122,7 +151,7 @@ class FilesController {
             $filesCount = $checkReplacement->fetchColumn();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при проверки уникальности имени файла");
         }
 
         if($filesCount > 0) {
@@ -139,7 +168,7 @@ class FilesController {
             $addFile->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при добавлении информации о файле в БД");
         }
 
         move_uploaded_file($fileTmpPath, $this->usersFolder . $fileName);
@@ -154,7 +183,6 @@ class FilesController {
         $id      = $request['id'];
         $newName = $request['newName'];
         $oldName = '';
-        $newName = $request['newName'];
 
         try{
             $getFile = $this->conn->prepare("SELECT * FROM files WHERE id = :id AND owner_id = :ownewID");
@@ -164,7 +192,7 @@ class FilesController {
             $getFile->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при поиске информации о файле");
         }
 
         $file    = $getFile->fetchAll(PDO::FETCH_ASSOC);
@@ -184,19 +212,76 @@ class FilesController {
             return "{" . $newName . "}";
         }, $oldName, 1);
 
+
+        if ($handle = opendir($this->usersFolder)) {
+            while (false !== ($file = readdir($handle))) {
+                if ($file == $oldName && is_file($this->usersFolder . $file)) {
+                    rename($this->usersFolder . $file, $this->usersFolder . $newFullName);
+                    echo "Файл переименован успешно!";
+                    break;
+                }
+            }
+            closedir($handle);
+        }
+        
         try{
-            $renameFile = $this->conn->prepare("UPDATE файлы SET file_name = :newFullName WHERE id = :id");
+            $renameFile = $this->conn->prepare("UPDATE files SET file_name = :newFullName WHERE id = :id");
             $renameFile->bindParam(":id", $id);
             $renameFile->bindParam(":newFullName", $newFullName);
 
             $renameFile->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при переименовании файла");
+        }
+    } 
+
+    public function removeFile($request) {
+        if (!isset($request['id'])) {
+            error_log("Error: Not all information was provided");
+            throw new Exception("Ошибка при получении данных");
+        }
+    
+        $id = $request['id'];
+    
+        try {
+            $searchFile = $this->conn->prepare("SELECT * FROM files WHERE id = :id AND owner_id = :owner_id");
+            $searchFile->bindParam(":id", $id);
+            $searchFile->bindParam(":owner_id", $_SESSION['user_id']);
+            $searchFile->execute();
+    
+        } catch (PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка при получении информации о файле");
+        }
+    
+        $fileInf = $searchFile->fetch(PDO::FETCH_ASSOC);
+    
+        if (!$fileInf) {
+            throw new Exception("Файл не найден");
         }
 
-        
-    } 
+        $fileName = $fileInf['file_name'];
+
+        $search_result = glob($this->usersFolder . $fileName);
+
+        if(!empty($search_result)) {
+            unlink($search_result[0]);
+        }
+    
+        try {
+            $deleteFile = $this->conn->prepare("DELETE FROM files WHERE id = :id AND owner_id = :owner_id");
+            $deleteFile->bindParam(":id", $id);
+            $deleteFile->bindParam(":owner_id", $_SESSION['user_id']);
+            $deleteFile->execute();
+            return "Файл удален";
+        } catch (PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка при удалении файла");
+        }
+    }
+
+
 
     public function addDirectory($request) {
         if (!isset($request['parentDirectoryID']) || !isset($request['directoryName'])) {
@@ -217,7 +302,7 @@ class FilesController {
             $directoriesCount     = $checkDirectory->fetchColumn();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при получении данных о родительской директории");
         }
 
         if($directoriesCount === 0) {
@@ -242,7 +327,7 @@ class FilesController {
         }
 
         if($nameCount > 0) {
-            throw new Exception("В данной директории уже есть папка с таким именем");
+            throw new Exception("Ошибка при получении данных о наличии папки с таким именем в данной директории");
         }
 
         print_r($_SESSION['user_id']);
@@ -255,10 +340,11 @@ class FilesController {
             $addFile->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при добавлении директории");
         }
 
     }
+
     public function renameDirectories($request) {
         if (!isset($request['id']) || !isset($request['newName'])) {
             error_log("Error: Not all information was provided");
@@ -279,7 +365,7 @@ class FilesController {
             $directoriesCount     = $checkDirectory->fetchColumn();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при получении данных о директории");
         }
 
         if($directoriesCount === 0) {
@@ -307,44 +393,248 @@ class FilesController {
 
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при переименовании директории");
         }
     }
-    public function getDirectories() {
-        
-    }
-    public function deleteDirectories() {
-        
-    }
 
-
-    public function shareList() {
-        
-    }
-    public function getShare() {
-        
-    }
-    public function deleteShare() {
-        
-    }
-
-
-
-    public function getUniqueName($pathParts, $filePath) {
-        if($filePath === '') {
-            $filePath = 'BASE_ROOT';
+    public function getDirectories($request) {
+        if (!isset($request['id'])) {
+            error_log("Error: Not all information was provided");
+            throw new Exception("Ошибка при получении данных");
         }
+
+        $id = $request['id'];
+
+        try{
+            $searchFile = $this->conn->prepare("SELECT * FROM files WHERE owner_id = :owner_id AND file_path = :file_path");
+            $searchFile->bindParam(":file_path", $id);
+            $searchFile->bindParam(":owner_id", $_SESSION['user_id']);
+
+            $searchFile->execute();
+            $files = $searchFile->fetchAll(PDO::FETCH_ASSOC);
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка при получении данных о директории");
+        }
+
+        foreach($files as $file) {
+            $pattern = "/\{(.*?)\}/";
+            preg_match_all($pattern, $file['file_name'], $matches);
+            $fileInfo = [];
+            $result   = $matches[1];
+
+            $fileInfo['id']          = $file['id'];
+            $fileInfo['name']        = $result[0];
+            $fileInfo['extension']   = pathinfo($file['file_name'])['extension'];
+            $fileInfo['owner']       = $result[1];
+            $fileInfo['file_path']   = $result[3];
+            $fileInfo['file_size']   = $file['file_size'];
+            $fileInfo['update_date'] = $file['file_update_date'];
+
+            header('Content-Type: application/json; charset=utf-8');
+            echo(json_encode($fileInfo, JSON_UNESCAPED_UNICODE));
+        }
+    }
+
+    public function deleteDirectories($request) {
+        if (!isset($request['id'])) {
+            error_log("Error: Not all information was provided");
+            throw new Exception("Ошибка при получении данных");
+        }
+
+        $id = $request['id'];
+
+        try{
+            $checkDirectory = $this->conn->prepare("SELECT * FROM directories WHERE id = :id");
+            $checkDirectory->bindParam(":id", $id);
+            $checkDirectory->execute();
+
+            $checkDirectoryResult = $checkDirectory->fetchAll(PDO::FETCH_ASSOC);
+            $directoriesCount     = $checkDirectory->fetchColumn();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка при поиске директории");
+        }
+
+        if($directoriesCount === 0) {
+            throw new Exception("Не найденна папка");
+        }
+
+        if($checkDirectoryResult[0]['directory_path'] === 'BASE_ROOT') {
+            throw new Exception("Невозможно удалить данную папку");
+        }
+
+        try{
+            $deleteDirectory =  $this->conn->prepare("DELETE FROM directories WHERE id = :id");
+            $deleteDirectory->bindParam(':id', $id);
+
+            $deleteDirectory->execute();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка при удалении директории");
+        }
+    }
+
+
+
+    public function shareList($request) {
+        if (!isset($request['id'])) {
+            error_log("Error: Not all information was provided");
+            throw new Exception("Ошибка при получении данных");
+        }
+
+        $fileID = $request['id'];
+
+        try{
+            $searchUser = $this->conn->prepare("SELECT user_id FROM access WHERE file_id = :file_id");
+            $searchUser->bindParam(":file_id", $fileID);
+            $searchUser->execute();
+
+            $searchUserResult = $searchUser->fetchAll(PDO::FETCH_ASSOC);
+            $usersCount       = $searchUser->fetchColumn();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка при поиске пользователей имеющих доступ к данному файлу");
+        }
+
+        if($usersCount === 0) {
+            throw new Exception("Нет пользователей имеющих доступ к данному файлу");
+        }
+
+        foreach($searchUserResult[0] as $i) {
+            try{
+                $getUser = $this->conn->prepare("SELECT email FROM users WHERE id = :id");
+                $getUser->bindParam(":id", $i);
+                $getUser->execute();
+    
+                $userInf = $getUser->fetchAll(PDO::FETCH_ASSOC);
+
+                header('Content-Type: application/json; charset=utf-8');
+                echo(json_encode($userInf[0], JSON_UNESCAPED_UNICODE));
+            } catch(PDOException $e) {
+                error_log("Error: " . $e->getMessage());
+                throw new Exception("Ошибка при попытке получить информацию о пользователях имеющих доступ к этому файлу");
+            }
+        }
+    }
+    
+    public function getShare($request) {
+        if (!isset($request['id']) || !isset($request['user_id'])) {
+            error_log("Error: Not all information was provided");
+            throw new Exception("Ошибка при получении данных");
+        }
+
+        $fileID = $request['id'];
+        $userID = $request['user_id'];
+
+        try{
+            $searchUser = $this->conn->prepare("SELECT * FROM users WHERE id = :id");
+            $searchUser->bindParam(":id", $userID);
+            $searchUser->execute();
+
+            $usersCount       = $searchUser->fetchColumn();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка при поиске информации о пользователе");
+        }
+
+        if($usersCount === 0) {
+            throw new Exception("Не найден пользователь");
+        }
+
+        try{
+            $searchFile = $this->conn->prepare("SELECT * FROM files WHERE id = :id AND owner_id = :owner_id");
+            $searchFile->bindParam(":id", $fileID);
+            $searchFile->bindParam(":owner_id", $_SESSION['user_id']);
+            $searchFile->execute();
+
+            $filesCount       = $searchFile->fetchColumn();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка при поиске информации о файле");
+        }
+
+        if($filesCount === 0) {
+            throw new Exception("Не найден файл");
+        }
+
+        try{
+            $searchShare = $this->conn->prepare("SELECT * FROM access WHERE file_id = :file_id AND user_id = :user_id");
+            $searchShare->bindParam(":file_id", $fileID);
+            $searchShare->bindParam(":user_id", $userID);
+            $searchShare->execute();
+
+            $shareCount = $searchShare->fetchColumn();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка при поиске информации о доступе к файлу");
+        }
+
+        if($shareCount > 0) {
+            throw new Exception("У пользователя уже есть доступ к этому файлу");
+        }
+
+        try{
+            $searchShare = $this->conn->prepare("INSERT INTO access (file_id, user_id) VALUES (:file_id, :user_id)");
+            $searchShare->bindParam(":file_id", $fileID);
+            $searchShare->bindParam(":user_id", $userID);
+            $searchShare->execute();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка при добавлении доступа к файлу");
+        }
+    }
+
+    public function deleteShare($request) {
+        if (!isset($request['id']) || !isset($request['user_id'])) {
+            error_log("Error: Not all information was provided");
+            throw new Exception("Ошибка при получении данных");
+        }
+
+        $fileID = $request['id'];
+        $userID = $request['user_id'];
+
+        try{
+            $searchShare = $this->conn->prepare("SELECT * FROM access WHERE user_id = :user_id AND file_id = :file_id");
+            $searchShare->bindParam(":user_id", $userID);
+            $searchShare->bindParam(":file_id", $fileID);
+            $searchShare->execute();
+
+            $shareCount = $searchShare->fetchColumn();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка при поиске информации о доступе к файлу");
+        }
+
+        if($shareCount === 0) {
+            throw new Exception("Не найдена информация о доступе");
+        }
+
+        try{
+            $deleteShare =  $this->conn->prepare("DELETE FROM directories WHERE user_id = :user_id AND file_id = :file_id");
+            $deleteShare->bindParam(":user_id", $userID);
+            $deleteShare->bindParam(":file_id", $fileID);
+            $deleteShare->execute();
+        } catch(PDOException $e) {
+            error_log("Error: " . $e->getMessage());
+            throw new Exception("Ошибка при удалении доступа к данному файлу");
+        }
+    }
+
+
+
+    public function getUniqueName($pathParts, $directoryID) {
         if (!preg_match('/^[a-zA-Zа-яА-Я0-9_-]+$/', $pathParts['filename'])) {
             return false;
         }
 
-        $uniqueName = "{" . $pathParts['filename'] . "}+{" . $_SESSION["user_email"] . "}+{" . $_SESSION['user_id'] . "}+{" . $filePath ."}" . "." . $pathParts['extension'];
+        $uniqueName = "{" . $pathParts['filename'] . "}+{" . $_SESSION["user_email"] . "}+{" . $_SESSION['user_id'] . "}+{" . $directoryID ."}" . "." . $pathParts['extension'];
         return $uniqueName;
     }
 
     public function checkingFolderName($name) {
-        if(strlen($name) < 8) {
-            throw new Exception("Название папки должно содержать хотя бы 8 символов");
+        if(strlen($name) < 4) {
+            throw new Exception("Название папки должно содержать хотя бы 4 символа");
         }
 
         if(strlen($name) > 32) {

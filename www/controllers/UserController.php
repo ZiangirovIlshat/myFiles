@@ -11,14 +11,14 @@ class UserController {
 
     public function list() {
         try {
-            $stmt = $this->conn->prepare("SELECT id, email, role FROM users");
+            $stmt = $this->conn->prepare("SELECT id, email FROM users");
             $stmt->execute();
             $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             header('Content-Type: application/json; charset=utf-8');
             echo json_encode($users);
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage(), 0);
-            throw new Exception("Ошибка подключения к базе данных: " . $e->getMessage());
+            throw new Exception("Ошибка при получении данных о пользователях");
         }
     }
 
@@ -35,7 +35,7 @@ class UserController {
             $stmt->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при получении данных о пользователе");
         }
 
         $user = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -70,7 +70,7 @@ class UserController {
             $count = $checEmail->fetchColumn();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage(), 0);
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при проверке уникальности почты");
         }
     
         if ($count > 0) {
@@ -81,6 +81,7 @@ class UserController {
         if ($passwordLength < 8) {
             throw new Exception("Пароль должен содержать минимум 8 символов");
         }
+
         if($passwordLength > 30) {
             throw new Exception("Длинна пароля не должна превышать 30 символов");
         }
@@ -96,7 +97,7 @@ class UserController {
             $addUser->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage(), 0);
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при добавлении пользователя");
         }
 
         $userId = $this->conn->lastInsertId();
@@ -110,7 +111,7 @@ class UserController {
             $addUserRootDirectory->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage(), 0);
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при добавлении корневой директории пользователя");
         }
     }
     
@@ -141,7 +142,7 @@ class UserController {
             $count = $checEmail->fetchColumn();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при проверке уникальности почты");
         }
     
         if ($count > 0) {
@@ -167,7 +168,7 @@ class UserController {
             $updateStmt->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при изменении данных пользователя");
         }
     }
     
@@ -188,7 +189,7 @@ class UserController {
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных: " . $e->getMessage());
+            throw new Exception("Ошибка при проверке введенной почты");
         }
 
         if (!$result) {
@@ -219,13 +220,14 @@ class UserController {
         }
 
         $email = $request['email'];
+
         try {
             $stmt = $this->conn->prepare("SELECT COUNT(*) FROM users WHERE email = :email");
             $stmt->bindParam(':email', $email, PDO::PARAM_STR);
             $stmt->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных: " . $e->getMessage());
+            throw new Exception("Ошибка при проверке введенной почты");
         }
 
         $count = $stmt->fetchColumn();
@@ -243,7 +245,7 @@ class UserController {
             $updateStmt->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных: " . $e->getMessage());
+            throw new Exception("Ошибка при добавлении hash-а");
         }
                 
         $resetLink = "http://cloud-storage.local/users/reset_password_hash/" . $email . "/" . $hash;
@@ -277,7 +279,7 @@ class UserController {
             $stmt->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных: " . $e->getMessage());
+            throw new Exception("Ошибка при проверке данных о пользователе");
         }
 
         $count = $stmt->fetchColumn();
@@ -296,7 +298,7 @@ class UserController {
             $updateStmt->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных: " . $e->getMessage());
+            throw new Exception("Ошибка при смене пароля");
         }
 
         echo($newPassword);
@@ -316,7 +318,7 @@ class UserController {
             $stmt->execute();
         } catch(PDOException $e) {
             error_log("Error: " . $e->getMessage());
-            throw new Exception("Ошибка подключения к базе данных");
+            throw new Exception("Ошибка при поиске пользователя");
         }
 
         $user = $stmt->fetchAll(PDO::FETCH_ASSOC);
